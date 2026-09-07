@@ -12,9 +12,11 @@ from app.models import Customer  # noqa: F401
 from app.models import DataImportJob  # noqa: F401
 from app.models import DecisionRecommendation  # noqa: F401
 from app.models import EngagementEvent  # noqa: F401
+from app.models import Followup  # noqa: F401
 from app.models import Lead  # noqa: F401
 from app.models import MLTrainingJob  # noqa: F401
 from app.models import Product  # noqa: F401
+from app.models import Task  # noqa: F401
 from app.models import WebsiteEvent  # noqa: F401
 
 config = context.config

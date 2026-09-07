@@ -125,6 +125,8 @@ Status: Implemented baseline training pipeline and model registry endpoints.
 
 ## Tasks and Followups
 
+Status: Implemented task CRUD and follow-up list/create/update endpoints.
+
 1. `GET /api/tasks`
 2. `POST /api/tasks`
 3. `GET /api/tasks/{id}`
