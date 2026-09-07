@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -8,6 +8,10 @@ from app.db.base import Base
 
 class WebsiteEvent(Base):
     __tablename__ = "website_events"
+    __table_args__ = (
+        Index("ix_website_events_lead_event_time", "lead_id", "event_time"),
+        Index("ix_website_events_customer_event_time", "customer_id", "event_time"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     lead_id: Mapped[int | None] = mapped_column(ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
