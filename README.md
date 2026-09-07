@@ -87,7 +87,7 @@ backend/
 ├── app/
 │   ├── api/
 │   │   ├── routes/
-│   │   │   └── customers.py
+│   │   │   ├── customers.py
 │   │   │   └── health.py
 │   │   └── router.py
 │   ├── models/
@@ -101,7 +101,7 @@ backend/
 │   │   ├── exceptions.py
 │   │   └── logging.py
 │   ├── schemas/
-│   │   └── customer.py
+│   │   ├── customer.py
 │   │   └── health.py
 │   └── main.py
 ├── docs/
@@ -109,7 +109,7 @@ backend/
 │   ├── data_assessment.md
 │   └── schema_proposal.md
 ├── tests/
-│   └── test_customers.py
+│   ├── test_customers.py
 │   └── test_health.py
 ├── Dockerfile
 ├── docker-compose.yml
