@@ -14,6 +14,9 @@ from app.models import DecisionRecommendation  # noqa: F401
 from app.models import EngagementEvent  # noqa: F401
 from app.models import Followup  # noqa: F401
 from app.models import Lead  # noqa: F401
+from app.models import LeadAssignment  # noqa: F401
+from app.models import LeadOutcome  # noqa: F401
+from app.models import LeadTimelineEvent  # noqa: F401
 from app.models import MLTrainingJob  # noqa: F401
 from app.models import Product  # noqa: F401
 from app.models import Task  # noqa: F401

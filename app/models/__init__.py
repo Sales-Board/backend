@@ -9,6 +9,9 @@ from app.models.decision_recommendation import DecisionRecommendation
 from app.models.engagement_event import EngagementEvent
 from app.models.followup import Followup
 from app.models.lead import Lead
+from app.models.lead_assignment import LeadAssignment
+from app.models.lead_outcome import LeadOutcome
+from app.models.lead_timeline_event import LeadTimelineEvent
 from app.models.ml_training_job import MLTrainingJob
 from app.models.product import Product
 from app.models.task import Task
@@ -24,6 +27,9 @@ __all__ = [
 	"EngagementEvent",
 	"Followup",
 	"Lead",
+	"LeadAssignment",
+	"LeadOutcome",
+	"LeadTimelineEvent",
 	"MLTrainingJob",
 	"Product",
 	"Task",

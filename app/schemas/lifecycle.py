@@ -47,7 +47,7 @@ class LeadOutcomeCreate(BaseModel):
     notes: str | None = None
     followup_required: bool = False
     next_action_hint: str | None = Field(default=None, max_length=64)
-    metadata: dict | None = None
+    details: dict | None = None
 
 
 class LeadOutcomeRead(BaseModel):
@@ -60,7 +60,7 @@ class LeadOutcomeRead(BaseModel):
     notes: str | None
     followup_required: bool
     next_action_hint: str | None
-    metadata: dict | None
+    details: dict | None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

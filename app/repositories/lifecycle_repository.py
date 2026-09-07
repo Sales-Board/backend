@@ -122,7 +122,7 @@ class LifecycleRepository:
         notes: str | None,
         followup_required: bool,
         next_action_hint: str | None,
-        metadata: dict | None,
+        details: dict | None,
     ) -> LeadOutcome:
         row = LeadOutcome(
             lead_id=lead_id,
@@ -133,7 +133,7 @@ class LifecycleRepository:
             notes=notes,
             followup_required=followup_required,
             next_action_hint=next_action_hint,
-            metadata=metadata,
+            details=details,
         )
         db.add(row)
         db.commit()

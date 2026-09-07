@@ -109,7 +109,7 @@ class LifecycleService:
             notes=payload.notes,
             followup_required=payload.followup_required,
             next_action_hint=payload.next_action_hint,
-            metadata=payload.metadata,
+            details=payload.details,
         )
 
         next_status = None

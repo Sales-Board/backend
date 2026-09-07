@@ -23,6 +23,9 @@ from app.models.customer import Customer
 from app.models.engagement_event import EngagementEvent
 from app.models.followup import Followup
 from app.models.lead import Lead
+from app.models.lead_assignment import LeadAssignment
+from app.models.lead_outcome import LeadOutcome
+from app.models.lead_timeline_event import LeadTimelineEvent
 from app.models.product import Product
 from app.models.task import Task
 from app.models.website_event import WebsiteEvent
@@ -51,6 +54,9 @@ def _reset_domain_tables(db: Session) -> None:
     for model in [
         Followup,
         Task,
+        LeadOutcome,
+        LeadTimelineEvent,
+        LeadAssignment,
         DecisionRecommendation,
         AIPrediction,
         Call,
