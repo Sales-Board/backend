@@ -2,13 +2,16 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.schemas.call import CallRead
 from app.schemas.lead import LeadCreate, LeadRead, LeadUpdate
 from app.schemas.website_journey import WebsiteEventRead
+from app.services.call_service import CallService
 from app.services.lead_service import LeadService
 from app.services.website_journey_service import WebsiteJourneyService
 
 router = APIRouter(prefix="/leads", tags=["leads"])
 lead_service = LeadService()
+call_service = CallService()
 journey_service = WebsiteJourneyService()
 
 
@@ -59,3 +62,14 @@ def get_lead_journey(
 ) -> list[WebsiteEventRead]:
     lead_service.get_lead(db, lead_id)
     return journey_service.list_lead_journey(db, lead_id=lead_id, skip=skip, limit=limit)
+
+
+@router.get("/{lead_id}/calls", response_model=list[CallRead])
+def get_lead_calls(
+    lead_id: int,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: Session = Depends(get_db),
+) -> list[CallRead]:
+    lead_service.get_lead(db, lead_id)
+    return call_service.list_calls(db, skip=skip, limit=limit, lead_id=lead_id)

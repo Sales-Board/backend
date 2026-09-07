@@ -11,6 +11,7 @@ Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, 
 Step 5 complete: Product domain with full CRUD APIs, persistence model, migration, and tests.
 Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/performance APIs, engagement channel APIs, migration, and tests.
 Step 7 complete: Website/Event Journey domain with lead journey endpoint, journey query APIs, migration, and tests.
+Step 8 complete: Calls domain with CRUD, start/end lifecycle APIs, lead calls endpoint, migration, and tests.
 
 ## Tech Stack
 
@@ -98,6 +99,7 @@ backend/
 │   ├── api/
 │   │   ├── routes/
 │   │   │   ├── campaigns.py
+│   │   │   ├── calls.py
 │   │   │   ├── customers.py
 │   │   │   ├── engagement.py
 │   │   │   ├── health.py
@@ -106,6 +108,7 @@ backend/
 │   │   │   └── products.py
 │   │   └── router.py
 │   ├── models/
+│   │   ├── call.py
 │   │   ├── campaign.py
 │   │   ├── customer.py
 │   │   ├── engagement_event.py
@@ -113,6 +116,7 @@ backend/
 │   │   ├── product.py
 │   │   └── website_event.py
 │   ├── repositories/
+│   │   ├── call_repository.py
 │   │   ├── campaign_repository.py
 │   │   ├── customer_repository.py
 │   │   ├── engagement_repository.py
@@ -120,6 +124,7 @@ backend/
 │   │   ├── product_repository.py
 │   │   └── website_journey_repository.py
 │   ├── services/
+│   │   ├── call_service.py
 │   │   ├── campaign_service.py
 │   │   ├── customer_service.py
 │   │   ├── engagement_service.py
@@ -131,6 +136,7 @@ backend/
 │   │   ├── exceptions.py
 │   │   └── logging.py
 │   ├── schemas/
+│   │   ├── call.py
 │   │   ├── campaign.py
 │   │   ├── customer.py
 │   │   ├── engagement.py
@@ -144,6 +150,7 @@ backend/
 │   ├── data_assessment.md
 │   └── schema_proposal.md
 ├── tests/
+│   ├── test_calls.py
 │   ├── test_campaigns.py
 │   ├── test_customers.py
 │   ├── test_engagement.py
@@ -166,7 +173,7 @@ backend/
 5. Product Domain (done)
 6. Campaign + Engagement (done)
 7. Website/Event Journey (done)
-8. Calls
+8. Calls (done)
 9. Data Import Pipeline
 10. ML Pipeline
 11. AI Prediction APIs

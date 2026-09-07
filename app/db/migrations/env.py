@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
+from app.models import Call  # noqa: F401
 from app.models import Campaign  # noqa: F401
 from app.models import Customer  # noqa: F401
 from app.models import EngagementEvent  # noqa: F401

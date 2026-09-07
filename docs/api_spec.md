@@ -16,7 +16,7 @@
 
 ## Leads
 
-Status: Implemented base CRUD endpoints and lead journey endpoint (timeline/engagement/calls/ai pending).
+Status: Implemented base CRUD endpoints, lead journey endpoint, and lead calls endpoint (timeline/engagement/ai pending).
 
 1. `GET /api/leads`
 2. `POST /api/leads`
@@ -82,6 +82,8 @@ Status: Implemented website journey query and lead journey summary endpoints.
 2. `GET /api/journey/leads/{lead_id}`
 
 ## Calls
+
+Status: Implemented CRUD and call lifecycle endpoints.
 
 1. `GET /api/calls`
 2. `POST /api/calls`
