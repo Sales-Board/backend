@@ -78,6 +78,18 @@ Optional combined DB bootstrap helper (migrations + DB check + quick tests):
 ./scripts/bootstrap_backend_db.sh
 ```
 
+Manual sample-data preload:
+
+```bash
+./.venv/bin/python ./scripts/preload_sample_data.py
+```
+
+Full live API smoke check (requires running server):
+
+```bash
+./.venv/bin/python ./scripts/live_api_smoke.py
+```
+
 ## Run With Docker (API + PostgreSQL)
 
 1. Copy Docker env template:

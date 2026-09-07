@@ -23,7 +23,10 @@ with psycopg.connect(settings.database_url.replace('+psycopg', '')) as conn:
         print('db-check:', cur.fetchone()[0])
 PY
 
-echo "[3/4] Running fast sanity tests"
+echo "[3/5] Preloading sample data"
+./.venv/bin/python ./scripts/preload_sample_data.py
+
+echo "[4/5] Running fast sanity tests"
 ./.venv/bin/pytest -q tests/test_health.py tests/test_customers.py --disable-warnings --maxfail=1
 
-echo "[4/4] Backend DB bootstrap completed"
+echo "[5/5] Backend DB bootstrap completed"
