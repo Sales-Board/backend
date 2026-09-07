@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.models import Customer  # noqa: F401
 from app.models import Lead  # noqa: F401
+from app.models import Product  # noqa: F401
 
 config = context.config
 

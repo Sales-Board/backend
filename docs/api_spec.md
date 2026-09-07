@@ -45,6 +45,8 @@ Status: Implemented CRUD endpoints.
 
 ## Products
 
+Status: Implemented CRUD endpoints.
+
 1. `GET /api/products`
 2. `POST /api/products`
 3. `GET /api/products/{id}`

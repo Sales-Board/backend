@@ -8,6 +8,7 @@ Step 1 complete: project foundation, API bootstrap, health endpoint, and dataset
 Step 2 complete: PostgreSQL + SQLAlchemy + Alembic foundation with DB-aware health checks.
 Step 3 complete: Customer domain with full CRUD APIs, persistence model, migration, and tests.
 Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, and tests.
+Step 5 complete: Product domain with full CRUD APIs, persistence model, migration, and tests.
 
 ## Tech Stack
 
@@ -96,17 +97,21 @@ backend/
 │   │   ├── routes/
 │   │   │   ├── customers.py
 │   │   │   ├── health.py
-│   │   │   └── leads.py
+│   │   │   ├── leads.py
+│   │   │   └── products.py
 │   │   └── router.py
 │   ├── models/
 │   │   ├── customer.py
-│   │   └── lead.py
+│   │   ├── lead.py
+│   │   └── product.py
 │   ├── repositories/
 │   │   ├── customer_repository.py
-│   │   └── lead_repository.py
+│   │   ├── lead_repository.py
+│   │   └── product_repository.py
 │   ├── services/
 │   │   ├── customer_service.py
-│   │   └── lead_service.py
+│   │   ├── lead_service.py
+│   │   └── product_service.py
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── exceptions.py
@@ -114,7 +119,8 @@ backend/
 │   ├── schemas/
 │   │   ├── customer.py
 │   │   ├── health.py
-│   │   └── lead.py
+│   │   ├── lead.py
+│   │   └── product.py
 │   └── main.py
 ├── docs/
 │   ├── api_spec.md
@@ -123,7 +129,8 @@ backend/
 ├── tests/
 │   ├── test_customers.py
 │   ├── test_health.py
-│   └── test_leads.py
+│   ├── test_leads.py
+│   └── test_products.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -136,7 +143,7 @@ backend/
 2. PostgreSQL + SQLAlchemy + Alembic (done)
 3. Customer Domain (done)
 4. Lead Domain (done)
-5. Product Domain
+5. Product Domain (done)
 6. Campaign + Engagement
 7. Website/Event Journey
 8. Calls
