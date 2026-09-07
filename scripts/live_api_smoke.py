@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import json
+import os
 import urllib.error
 import urllib.request
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
 
 
 def call(method: str, path: str, payload: dict | None = None, expect: tuple[int, ...] = (200,)) -> dict | list | None:
@@ -72,6 +73,53 @@ def main() -> None:
     call("GET", f"/api/leads/{lead_id}")
     call("GET", f"/api/leads/{lead_id}/journey")
     call("GET", f"/api/leads/{lead_id}/calls")
+    timeline = call("GET", f"/api/leads/{lead_id}/timeline")
+    details = call("GET", f"/api/leads/{lead_id}/details")
+    call(
+        "POST",
+        f"/api/leads/{lead_id}/assign",
+        payload={"to_section": "ai_qualification", "to_handler": "ai-agent", "reason": "smoke-assign"},
+    )
+    call(
+        "POST",
+        f"/api/leads/{lead_id}/transfer",
+        payload={"to_section": "sales", "to_handler": "agent-101", "reason": "smoke-transfer"},
+    )
+    call(
+        "POST",
+        f"/api/leads/{lead_id}/outcomes",
+        payload={
+            "action_type": "human_call",
+            "outcome_code": "interested",
+            "outcome_label": "Interested",
+            "followup_required": True,
+            "next_action_hint": "call",
+            "details": {"source": "live_api_smoke"},
+        },
+        expect=(201,),
+    )
+    outcomes = call("GET", f"/api/leads/{lead_id}/outcomes")
+
+    required_detail_keys = {
+        "lead",
+        "customer",
+        "campaign",
+        "engagement",
+        "journey",
+        "ai",
+        "calls",
+        "tasks",
+        "followups",
+        "outcomes",
+        "timeline",
+    }
+    if not isinstance(details, dict) or not required_detail_keys.issubset(details.keys()):
+        print("Lifecycle details payload missing required keys")
+        raise SystemExit(1)
+
+    if not isinstance(timeline, list) or not isinstance(outcomes, list):
+        print("Lifecycle timeline/outcomes payload shape is invalid")
+        raise SystemExit(1)
 
     call("GET", f"/api/tasks/{task_id}")
     if followups:

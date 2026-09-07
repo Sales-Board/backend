@@ -1,259 +1,190 @@
 # AI Sales and Lead Intelligence Backend
 
-Modular FastAPI backend for a sales and lead intelligence platform where lead lifecycle is the core business object.
+FastAPI backend for lead-centric workflow automation, analytics, AI scoring, and decision support.
 
-## Current Status
+## What Is Implemented
 
-Step 1 complete: project foundation, API bootstrap, health endpoint, and dataset/domain planning docs.
-Step 2 complete: PostgreSQL + SQLAlchemy + Alembic foundation with DB-aware health checks.
-Step 3 complete: Customer domain with full CRUD APIs, persistence model, migration, and tests.
-Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, and tests.
-Step 5 complete: Product domain with full CRUD APIs, persistence model, migration, and tests.
-Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/performance APIs, engagement channel APIs, migration, and tests.
-Step 7 complete: Website/Event Journey domain with lead journey endpoint, journey query APIs, migration, and tests.
-Step 8 complete: Calls domain with CRUD, start/end lifecycle APIs, lead calls endpoint, migration, and tests.
-Step 9 complete: Data Import Pipeline with import job tracking, data quality/validation reports, history, export API, migration, and tests.
-Step 10 complete: ML Pipeline with baseline model training, training-job tracking, model listing APIs, migration, and tests.
-Step 11 complete: AI Prediction APIs with baseline scoring, full endpoint surface, prediction logs, migration, and tests.
-Step 12 complete: Decision Engine with next-action recommendations, decision logs, migration, and tests.
-Step 13 complete: Tasks and Follow-ups with task CRUD, follow-up scheduling/update APIs, migration, and tests.
-Step 14 complete: Analytics with dashboard summary, funnel metrics, channel performance APIs, and tests.
-Step 15 complete: Reports with campaign performance, workload, and pipeline reporting APIs, and tests.
-Step 16 complete: Integration Testing with end-to-end cross-module flow coverage.
-Step 17 complete: Performance Optimization with composite DB indexes for hot query paths and high-volume smoke tests.
+1. Health and dashboard APIs.
+2. Customer, lead, product, campaign CRUD domains.
+3. Engagement, website journey, calls, tasks, and follow-up workflows.
+4. Data import/export and quality validation APIs.
+5. ML training and model catalog APIs.
+6. AI prediction and decision recommendation APIs.
+7. Analytics and reporting APIs.
+8. Lead lifecycle operations:
+	 - Assignment and transfer.
+	 - Timeline event tracking.
+	 - Outcome capture and follow-up generation.
+	 - Unified lead details response.
 
-## Tech Stack
+## Architecture
 
-- Python 3.12+
-- FastAPI
-- Pydantic v2
-- Uvicorn
-- pytest + httpx
-- PostgreSQL, SQLAlchemy, Alembic
+- `app/api/routes/*`: HTTP contracts and endpoint registration.
+- `app/services/*`: business workflow orchestration.
+- `app/repositories/*`: DB query and persistence layer.
+- `app/models/*`: SQLAlchemy models.
+- `app/schemas/*`: Pydantic request/response contracts.
+- `app/db/migrations/*`: Alembic schema evolution.
 
-## Run Locally
+Request flow:
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
+```text
+Client -> FastAPI Route -> Service -> Repository -> PostgreSQL
+																		-> Domain logic -> Response schema
+```
+
+## Local Setup (Backend-Only, venv Inside backend)
+
+From project root:
 
 ```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Optional ML stack (later roadmap steps):
+Optional ML extras:
 
 ```bash
 pip install -r requirements-ml.txt
 ```
 
-3. Copy environment file:
+Create env file:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Start PostgreSQL on your machine and create database `lead_intelligence`.
+## PostgreSQL Setup
 
-Quick Ubuntu setup helper (installs PostgreSQL, starts service, sets password, creates DB):
+Use local PostgreSQL and ensure database `lead_intelligence` exists.
+
+Ubuntu helper:
 
 ```bash
 ./scripts/setup_postgres_ubuntu.sh
 ```
 
-5. Apply migrations:
+Apply migrations:
 
 ```bash
-alembic upgrade head
+./.venv/bin/alembic upgrade head
 ```
 
-6. Start server:
+## Load Real Sample Data
+
+This imports real records from `backend/sample_data.xlsx` (sheet: `dataset`).
 
 ```bash
-uvicorn app.main:app --reload
+./.venv/bin/python scripts/preload_sample_data.py --reset
 ```
 
-Optional combined DB bootstrap helper (migrations + DB check + quick tests):
+Optional custom path:
 
 ```bash
-./scripts/bootstrap_backend_db.sh
+./.venv/bin/python scripts/preload_sample_data.py --reset --dataset-path ./sample_data.xlsx
 ```
 
-Manual sample-data preload:
+Important dataset metadata:
+
+- Column definitions are read from `sample_data.xlsx` and mapped into product/campaign/customer/lead/call/task/follow-up/engagement/website entities.
+- Dataset dictionary sheet (`data_dictionary`) is included in generated handbook documentation.
+
+## Run API Server
 
 ```bash
-./.venv/bin/python ./scripts/preload_sample_data.py --reset
+./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The preload command ingests real records from `sample_data/policy_indexed.json` and repopulates core domain tables.
+## API Docs URLs
 
-Full live API smoke check (requires running server):
+- Swagger UI: `http://localhost:8000/api/docs`
+- ReDoc: `http://localhost:8000/api/redoc`
+- OpenAPI JSON: `http://localhost:8000/api/openapi.json`
+
+## Validate APIs End-to-End
+
+1. Automated smoke checks:
 
 ```bash
-./.venv/bin/python ./scripts/live_api_smoke.py
+./.venv/bin/python scripts/live_api_smoke.py
 ```
 
-## Run With Docker (API + PostgreSQL)
+2. Test suite:
 
-1. Copy Docker env template:
+```bash
+./.venv/bin/pytest -q
+```
+
+3. Lifecycle test coverage:
+
+```bash
+./.venv/bin/pytest -q tests/test_lead_lifecycle.py
+```
+
+## Lifecycle API Surface
+
+All endpoints are under `/api` prefix.
+
+- `GET /leads/{lead_id}/timeline`
+	- Returns chronological lifecycle events.
+- `GET /leads/{lead_id}/details`
+	- Returns unified payload: lead, customer, campaign, engagement, journey, AI block, calls, tasks, followups, outcomes, timeline.
+- `POST /leads/{lead_id}/assign`
+	- Assigns lead to a section/handler.
+- `POST /leads/{lead_id}/transfer`
+	- Transfers lead to a new section/handler.
+- `POST /leads/{lead_id}/outcomes`
+	- Records action outcome and can auto-create follow-up.
+- `GET /leads/{lead_id}/outcomes`
+	- Lists outcome history.
+
+## Data Processing Flow
+
+1. Data import API records import jobs and metadata.
+2. Preload script maps real sample dataset into core entities (products, campaigns, customers, leads).
+3. Service layer creates linked operational records (tasks, followups, calls, engagement, journey events).
+4. AI endpoints generate prediction logs per lead.
+5. Decision endpoints generate next-action recommendations.
+6. Lifecycle layer combines outcomes, assignments, and events into a single lead timeline and details view.
+
+## Docker Mode
 
 ```bash
 cp .env.docker.example .env
-```
-
-2. Start services:
-
-```bash
 docker compose up -d --build
-```
-
-3. Run migrations in API container:
-
-```bash
 docker compose exec api alembic upgrade head
 ```
 
-4. Open docs:
+Docs (Docker):
 
-- Swagger UI: http://localhost:8000/api/docs
+- `http://localhost:8000/api/docs`
 
-## API Docs
+## Generate Full Project Handbook PDF
 
-- Swagger UI: `http://localhost:8000/docs`
-- OpenAPI JSON: `http://localhost:8000/openapi.json`
-
-## Health Check
-
-```http
-GET /health
-```
-
-Response:
-
-```json
-{
-	"status": "ok",
-	"database": "connected | unavailable | not_configured"
-}
-```
-
-## Database & Migrations
-
-1. Ensure PostgreSQL is running (local service or Docker container).
-2. Set `DATABASE_URL` in `.env` for your runtime mode.
-3. Run migrations:
+Generate a full technical handbook (features, architecture, API inventory, data flow, lifecycle behavior):
 
 ```bash
-alembic upgrade head
+./.venv/bin/pip install reportlab
+./.venv/bin/python scripts/generate_project_docs_pdf.py
 ```
 
-Create a new migration after model changes:
+Outputs:
 
-```bash
-alembic revision --autogenerate -m "describe_change"
-```
+- `docs/project_backend_handbook.md`
+- `docs/project_backend_handbook.pdf`
 
-## Tests
+The handbook includes:
 
-```bash
-pytest -q
-```
+- Architecture and lifecycle diagrams.
+- Detailed runbook.
+- API request/response parameters.
+- Full `sample_data.xlsx` column list and column dictionary mapping.
 
-## Implemented Structure
+## Quick Troubleshooting
 
-```text
-backend/
-├── app/
-│   ├── api/
-│   │   ├── routes/
-│   │   │   ├── campaigns.py
-│   │   │   ├── calls.py
-│   │   │   ├── customers.py
-│   │   │   ├── data.py
-│   │   │   ├── engagement.py
-│   │   │   ├── health.py
-│   │   │   ├── journey.py
-│   │   │   ├── leads.py
-│   │   │   └── products.py
-│   │   └── router.py
-│   ├── models/
-│   │   ├── call.py
-│   │   ├── campaign.py
-│   │   ├── customer.py
-│   │   ├── data_import_job.py
-│   │   ├── engagement_event.py
-│   │   ├── lead.py
-│   │   ├── product.py
-│   │   └── website_event.py
-│   ├── repositories/
-│   │   ├── call_repository.py
-│   │   ├── campaign_repository.py
-│   │   ├── customer_repository.py
-│   │   ├── data_repository.py
-│   │   ├── engagement_repository.py
-│   │   ├── lead_repository.py
-│   │   ├── product_repository.py
-│   │   └── website_journey_repository.py
-│   ├── services/
-│   │   ├── call_service.py
-│   │   ├── campaign_service.py
-│   │   ├── customer_service.py
-│   │   ├── data_service.py
-│   │   ├── engagement_service.py
-│   │   ├── lead_service.py
-│   │   ├── product_service.py
-│   │   └── website_journey_service.py
-│   ├── core/
-│   │   ├── config.py
-│   │   ├── exceptions.py
-│   │   └── logging.py
-│   ├── schemas/
-│   │   ├── call.py
-│   │   ├── campaign.py
-│   │   ├── customer.py
-│   │   ├── data_management.py
-│   │   ├── engagement.py
-│   │   ├── health.py
-│   │   ├── lead.py
-│   │   ├── product.py
-│   │   └── website_journey.py
-│   └── main.py
-├── docs/
-│   ├── api_spec.md
-│   ├── data_assessment.md
-│   └── schema_proposal.md
-├── tests/
-│   ├── test_calls.py
-│   ├── test_campaigns.py
-│   ├── test_customers.py
-│   ├── test_data_pipeline.py
-│   ├── test_engagement.py
-│   ├── test_health.py
-│   ├── test_journey.py
-│   ├── test_leads.py
-│   └── test_products.py
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── .env.example
-```
-
-## Roadmap (Incremental)
-
-1. Project Foundation (done)
-2. PostgreSQL + SQLAlchemy + Alembic (done)
-3. Customer Domain (done)
-4. Lead Domain (done)
-5. Product Domain (done)
-6. Campaign + Engagement (done)
-7. Website/Event Journey (done)
-8. Calls (done)
-9. Data Import Pipeline (done)
-10. ML Pipeline (done)
-11. AI Prediction APIs (done)
-12. Decision Engine (done)
-13. Tasks / Follow-ups (done)
-14. Analytics (done)
-15. Reports (done)
-16. Integration Testing (done)
-17. Performance Optimization (done)
+- `404 /openapi.json`: use `/api/openapi.json`.
+- DB connection errors: verify `DATABASE_URL` in `.env` and PostgreSQL service status.
+- Empty API lists: run preload command with `--reset`.
 
