@@ -54,7 +54,7 @@ def test_task_crud(client) -> None:
     assert create_response.status_code == 201
     created = create_response.json()
     task_id = created["id"]
-    assert created["title"] == "Call back lead"
+    assert created["Label_Source_Disposition"] == "Call back lead"
 
     get_response = client.get(f"/api/tasks/{task_id}")
     assert get_response.status_code == 200

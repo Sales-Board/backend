@@ -19,4 +19,5 @@ class LeadTimelineEvent(Base):
     event_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     event_source: Mapped[str] = mapped_column(String(64), nullable=False, server_default="system")
     details: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    excel_fields: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)

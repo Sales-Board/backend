@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,6 +37,7 @@ class LeadAssignmentRead(BaseModel):
     is_current: bool
     details: dict | None
     created_at: datetime
+    excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -62,6 +64,7 @@ class LeadOutcomeRead(BaseModel):
     next_action_hint: str | None
     details: dict | None
     created_at: datetime
+    excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -74,6 +77,7 @@ class LeadTimelineEventRead(BaseModel):
     event_source: str
     details: dict | None
     created_at: datetime
+    excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
 
     model_config = ConfigDict(from_attributes=True)
 

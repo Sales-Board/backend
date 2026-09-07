@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:15:34 UTC
+Generated: 2026-09-07 21:29:32 UTC
 
 ## 1. Executive Summary
 
@@ -375,25 +375,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Calls
 - Tags: calls
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), status_filter(query)
-- Responses: 200: items[created_at], items[customer_id], items[direction], items[duration_seconds], items[ended_at], items[id], items[lead_id], items[notes], ... | 422: detail
+- Responses: 200: items[CDR_Avg_Talk_Sec], items[CDR_Call_Direction], items[CDR_Top_Call_Status], items[Excel_Fields], items[created_at], items[customer_id], items[ended_at], items[id], ... | 422: detail
 
 ### POST /api/calls
 - Summary: Create Call
 - Tags: calls
 - Request: body=customer_id, direction, lead_id, notes, phone_number, scheduled_at, status
-- Responses: 201: created_at, customer_id, direction, duration_seconds, ended_at, id, lead_id, notes, ... | 422: detail
+- Responses: 201: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### GET /api/calls/{call_id}
 - Summary: Get Call
 - Tags: calls
 - Request: params=call_id(path)
-- Responses: 200: created_at, customer_id, direction, duration_seconds, ended_at, id, lead_id, notes, ... | 422: detail
+- Responses: 200: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### PATCH /api/calls/{call_id}
 - Summary: Update Call
 - Tags: calls
 - Request: params=call_id(path) ; body=customer_id, direction, lead_id, notes, phone_number, scheduled_at, status
-- Responses: 200: created_at, customer_id, direction, duration_seconds, ended_at, id, lead_id, notes, ... | 422: detail
+- Responses: 200: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### DELETE /api/calls/{call_id}
 - Summary: Delete Call
@@ -405,37 +405,37 @@ Total API paths in OpenAPI: 62
 - Summary: End Call
 - Tags: calls
 - Request: params=call_id(path) ; body=ended_at, notes
-- Responses: 200: created_at, customer_id, direction, duration_seconds, ended_at, id, lead_id, notes, ... | 422: detail
+- Responses: 200: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### POST /api/calls/{call_id}/start
 - Summary: Start Call
 - Tags: calls
 - Request: params=call_id(path) ; body=started_at
-- Responses: 200: created_at, customer_id, direction, duration_seconds, ended_at, id, lead_id, notes, ... | 422: detail
+- Responses: 200: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### GET /api/campaigns
 - Summary: List Campaigns
 - Tags: campaigns
 - Request: params=skip(query), limit(query)
-- Responses: 200: items[channel], items[code], items[created_at], items[end_date], items[id], items[name], items[start_date], items[status], ... | 422: detail
+- Responses: 200: items[CRM_UTM_Campaign], items[CRM_UTM_Source], items[Excel_Fields], items[code], items[created_at], items[end_date], items[id], items[start_date], ... | 422: detail
 
 ### POST /api/campaigns
 - Summary: Create Campaign
 - Tags: campaigns
 - Request: body=channel, code, end_date, name, start_date, status
-- Responses: 201: channel, code, created_at, end_date, id, name, start_date, status, ... | 422: detail
+- Responses: 201: CRM_UTM_Campaign, CRM_UTM_Source, Excel_Fields, code, created_at, end_date, id, start_date, ... | 422: detail
 
 ### GET /api/campaigns/{campaign_id}
 - Summary: Get Campaign
 - Tags: campaigns
 - Request: params=campaign_id(path)
-- Responses: 200: channel, code, created_at, end_date, id, name, start_date, status, ... | 422: detail
+- Responses: 200: CRM_UTM_Campaign, CRM_UTM_Source, Excel_Fields, code, created_at, end_date, id, start_date, ... | 422: detail
 
 ### PATCH /api/campaigns/{campaign_id}
 - Summary: Update Campaign
 - Tags: campaigns
 - Request: params=campaign_id(path) ; body=channel, code, end_date, name, start_date, status
-- Responses: 200: channel, code, created_at, end_date, id, name, start_date, status, ... | 422: detail
+- Responses: 200: CRM_UTM_Campaign, CRM_UTM_Source, Excel_Fields, code, created_at, end_date, id, start_date, ... | 422: detail
 
 ### DELETE /api/campaigns/{campaign_id}
 - Summary: Delete Campaign
@@ -549,43 +549,43 @@ Total API paths in OpenAPI: 62
 - Summary: List Email Events
 - Tags: engagement
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), campaign_id(query)
-- Responses: 200: items[campaign_id], items[channel], items[customer_id], items[event_payload], items[event_time], items[id], items[lead_id], items[metric_type], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[Excel_Fields], items[MSG_Engaged], items[campaign_id], items[customer_id], items[event_payload], items[event_time], items[id], ... | 422: detail
 
 ### GET /api/engagement/rcs
 - Summary: List Rcs Events
 - Tags: engagement
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), campaign_id(query)
-- Responses: 200: items[campaign_id], items[channel], items[customer_id], items[event_payload], items[event_time], items[id], items[lead_id], items[metric_type], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[Excel_Fields], items[MSG_Engaged], items[campaign_id], items[customer_id], items[event_payload], items[event_time], items[id], ... | 422: detail
 
 ### GET /api/engagement/website
 - Summary: List Website Events
 - Tags: engagement
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), campaign_id(query)
-- Responses: 200: items[campaign_id], items[channel], items[customer_id], items[event_payload], items[event_time], items[id], items[lead_id], items[metric_type], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[Excel_Fields], items[MSG_Engaged], items[campaign_id], items[customer_id], items[event_payload], items[event_time], items[id], ... | 422: detail
 
 ### GET /api/engagement/whatsapp
 - Summary: List Whatsapp Events
 - Tags: engagement
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), campaign_id(query)
-- Responses: 200: items[campaign_id], items[channel], items[customer_id], items[event_payload], items[event_time], items[id], items[lead_id], items[metric_type], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[Excel_Fields], items[MSG_Engaged], items[campaign_id], items[customer_id], items[event_payload], items[event_time], items[id], ... | 422: detail
 
 ### GET /api/followups
 - Summary: List Followups
 - Tags: followups
 - Request: params=skip(query), limit(query), task_id(query), lead_id(query), customer_id(query)
-- Responses: 200: items[channel], items[completed_at], items[created_at], items[customer_id], items[id], items[lead_id], items[notes], items[scheduled_at], ... | 422: detail
+- Responses: 200: items[Excel_Fields], items[Label_Basis], items[channel], items[completed_at], items[created_at], items[customer_id], items[id], items[lead_id], ... | 422: detail
 
 ### POST /api/followups
 - Summary: Create Followup
 - Tags: followups
 - Request: body=channel, customer_id, lead_id, notes, scheduled_at, status, task_id
-- Responses: 201: channel, completed_at, created_at, customer_id, id, lead_id, notes, scheduled_at, ... | 422: detail
+- Responses: 201: Excel_Fields, Label_Basis, channel, completed_at, created_at, customer_id, id, lead_id, ... | 422: detail
 
 ### PATCH /api/followups/{followup_id}
 - Summary: Update Followup
 - Tags: followups
 - Request: params=followup_id(path) ; body=channel, completed_at, customer_id, lead_id, notes, scheduled_at, status, task_id
-- Responses: 200: channel, completed_at, created_at, customer_id, id, lead_id, notes, scheduled_at, ... | 422: detail
+- Responses: 200: Excel_Fields, Label_Basis, channel, completed_at, created_at, customer_id, id, lead_id, ... | 422: detail
 
 ### GET /api/health
 - Summary: Health Check
@@ -603,7 +603,7 @@ Total API paths in OpenAPI: 62
 - Summary: List Website Events
 - Tags: journey
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), device_type(query)
-- Responses: 200: items[customer_id], items[device_type], items[event_name], items[event_payload], items[event_time], items[id], items[is_repeat_visitor], items[lead_id], ... | 422: detail
+- Responses: 200: items[Excel_Fields], items[WEB_Device_Type], items[WEB_New_Vs_Repeat], items[WEB_Step_Name], items[WEB_Step_Number], items[customer_id], items[event_name], items[event_payload], ... | 422: detail
 
 ### GET /api/leads
 - Summary: List Leads
@@ -639,13 +639,13 @@ Total API paths in OpenAPI: 62
 - Summary: Assign Lead
 - Tags: leads
 - Request: params=lead_id(path) ; body=details, reason, related_decision_id, to_handler, to_section, trigger
-- Responses: 200: assignment_type, created_at, customer_id, details, from_handler, from_section, id, is_current, ... | 422: detail
+- Responses: 200: Excel_Fields, assignment_type, created_at, customer_id, details, from_handler, from_section, id, ... | 422: detail
 
 ### GET /api/leads/{lead_id}/calls
 - Summary: Get Lead Calls
 - Tags: leads
 - Request: params=lead_id(path), skip(query), limit(query)
-- Responses: 200: items[created_at], items[customer_id], items[direction], items[duration_seconds], items[ended_at], items[id], items[lead_id], items[notes], ... | 422: detail
+- Responses: 200: items[CDR_Avg_Talk_Sec], items[CDR_Call_Direction], items[CDR_Top_Call_Status], items[Excel_Fields], items[created_at], items[customer_id], items[ended_at], items[id], ... | 422: detail
 
 ### GET /api/leads/{lead_id}/details
 - Summary: Get Lead Details
@@ -657,31 +657,31 @@ Total API paths in OpenAPI: 62
 - Summary: Get Lead Journey
 - Tags: leads
 - Request: params=lead_id(path), skip(query), limit(query)
-- Responses: 200: items[customer_id], items[device_type], items[event_name], items[event_payload], items[event_time], items[id], items[is_repeat_visitor], items[lead_id], ... | 422: detail
+- Responses: 200: items[Excel_Fields], items[WEB_Device_Type], items[WEB_New_Vs_Repeat], items[WEB_Step_Name], items[WEB_Step_Number], items[customer_id], items[event_name], items[event_payload], ... | 422: detail
 
 ### GET /api/leads/{lead_id}/outcomes
 - Summary: List Lead Outcomes
 - Tags: leads
 - Request: params=lead_id(path)
-- Responses: 200: items[action_type], items[created_at], items[customer_id], items[details], items[followup_required], items[id], items[lead_id], items[next_action_hint], ... | 422: detail
+- Responses: 200: items[Excel_Fields], items[action_type], items[created_at], items[customer_id], items[details], items[followup_required], items[id], items[lead_id], ... | 422: detail
 
 ### POST /api/leads/{lead_id}/outcomes
 - Summary: Record Lead Outcome
 - Tags: leads
 - Request: params=lead_id(path) ; body=action_type, details, followup_required, next_action_hint, notes, outcome_code, outcome_label
-- Responses: 201: action_type, created_at, customer_id, details, followup_required, id, lead_id, next_action_hint, ... | 422: detail
+- Responses: 201: Excel_Fields, action_type, created_at, customer_id, details, followup_required, id, lead_id, ... | 422: detail
 
 ### GET /api/leads/{lead_id}/timeline
 - Summary: Get Lead Timeline
 - Tags: leads
 - Request: params=lead_id(path)
-- Responses: 200: items[created_at], items[customer_id], items[details], items[event_source], items[event_type], items[id], items[lead_id] | 422: detail
+- Responses: 200: items[Excel_Fields], items[created_at], items[customer_id], items[details], items[event_source], items[event_type], items[id], items[lead_id] | 422: detail
 
 ### POST /api/leads/{lead_id}/transfer
 - Summary: Transfer Lead
 - Tags: leads
 - Request: params=lead_id(path) ; body=details, reason, related_decision_id, to_handler, to_section, trigger
-- Responses: 200: assignment_type, created_at, customer_id, details, from_handler, from_section, id, is_current, ... | 422: detail
+- Responses: 200: Excel_Fields, assignment_type, created_at, customer_id, details, from_handler, from_section, id, ... | 422: detail
 
 ### GET /api/ml/models
 - Summary: List Models
@@ -705,25 +705,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Products
 - Tags: products
 - Request: params=skip(query), limit(query)
-- Responses: 200: items[category], items[code], items[created_at], items[id], items[is_active], items[name], items[updated_at] | 422: detail
+- Responses: 200: items[CRM_Product_Code], items[CRM_Product_Name], items[Excel_Fields], items[category], items[created_at], items[id], items[is_active], items[updated_at] | 422: detail
 
 ### POST /api/products
 - Summary: Create Product
 - Tags: products
 - Request: body=category, code, is_active, name
-- Responses: 201: category, code, created_at, id, is_active, name, updated_at | 422: detail
+- Responses: 201: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
 
 ### GET /api/products/{product_id}
 - Summary: Get Product
 - Tags: products
 - Request: params=product_id(path)
-- Responses: 200: category, code, created_at, id, is_active, name, updated_at | 422: detail
+- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
 
 ### PATCH /api/products/{product_id}
 - Summary: Update Product
 - Tags: products
 - Request: params=product_id(path) ; body=category, code, is_active, name
-- Responses: 200: category, code, created_at, id, is_active, name, updated_at | 422: detail
+- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
 
 ### DELETE /api/products/{product_id}
 - Summary: Delete Product
@@ -753,25 +753,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Tasks
 - Tags: tasks
 - Request: params=skip(query), limit(query), lead_id(query), customer_id(query), status_filter(query)
-- Responses: 200: items[created_at], items[customer_id], items[description], items[due_at], items[id], items[lead_id], items[priority], items[status], ... | 422: detail
+- Responses: 200: items[Excel_Fields], items[Label_Source_Disposition], items[created_at], items[customer_id], items[description], items[due_at], items[id], items[lead_id], ... | 422: detail
 
 ### POST /api/tasks
 - Summary: Create Task
 - Tags: tasks
 - Request: body=customer_id, description, due_at, lead_id, priority, status, title
-- Responses: 201: created_at, customer_id, description, due_at, id, lead_id, priority, status, ... | 422: detail
+- Responses: 201: Excel_Fields, Label_Source_Disposition, created_at, customer_id, description, due_at, id, lead_id, ... | 422: detail
 
 ### GET /api/tasks/{task_id}
 - Summary: Get Task
 - Tags: tasks
 - Request: params=task_id(path)
-- Responses: 200: created_at, customer_id, description, due_at, id, lead_id, priority, status, ... | 422: detail
+- Responses: 200: Excel_Fields, Label_Source_Disposition, created_at, customer_id, description, due_at, id, lead_id, ... | 422: detail
 
 ### PATCH /api/tasks/{task_id}
 - Summary: Update Task
 - Tags: tasks
 - Request: params=task_id(path) ; body=customer_id, description, due_at, lead_id, priority, status, title
-- Responses: 200: created_at, customer_id, description, due_at, id, lead_id, priority, status, ... | 422: detail
+- Responses: 200: Excel_Fields, Label_Source_Disposition, created_at, customer_id, description, due_at, id, lead_id, ... | 422: detail
 
 ### DELETE /api/tasks/{task_id}
 - Summary: Delete Task

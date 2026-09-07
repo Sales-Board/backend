@@ -158,6 +158,10 @@ This avoids misuse of generic fields like `first_name` for demographic values.
 
 Lead responses additionally return `Excel_Fields`, an object containing all 91 original `sample_data.xlsx` column names and values for that lead. Internal relational keys such as `customer_id` and `campaign_id` remain numeric database references; the original Excel `Customer_ID` is available inside `Excel_Fields` and in the related customer object's `Customer_ID` field.
 
+Every data-bearing response section also returns `Excel_Fields` when sourced from the workbook: products, campaigns, engagement events, website journey events, calls, tasks, follow-ups, assignments, timeline events, and outcomes. Public fields use real workbook names where a direct mapping exists, for example `CRM_Product_Code`, `CRM_Product_Name`, `CRM_UTM_Campaign`, `CDR_Top_Call_Status`, `CDR_Avg_Talk_Sec`, `CRM_Channel`, `WEB_Step_Name`, `WEB_Device_Type`, `Label_Source_Disposition`, and `Label_Basis`.
+
+Fields with no equivalent Excel column remain internal operational fields, such as database `id`, `status` workflow values, `metric_type`, and timestamps. They are not falsely renamed to unrelated Excel columns.
+
 ## Data Processing Flow
 
 1. Data import API records import jobs and metadata.

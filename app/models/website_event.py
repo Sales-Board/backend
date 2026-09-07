@@ -26,6 +26,7 @@ class WebsiteEvent(Base):
     device_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
     is_repeat_visitor: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     event_payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    excel_fields: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     event_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

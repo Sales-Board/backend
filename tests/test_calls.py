@@ -99,7 +99,7 @@ def test_call_start_and_end_lifecycle(client) -> None:
     start_response = client.post(f"/api/calls/{call_id}/start", json={"started_at": started_at})
     assert start_response.status_code == 200
     started = start_response.json()
-    assert started["status"] == "in_progress"
+    assert started["CDR_Top_Call_Status"] == "in_progress"
     assert started["started_at"].startswith("2026-09-07T12:00:00")
 
     end_response = client.post(
@@ -108,8 +108,8 @@ def test_call_start_and_end_lifecycle(client) -> None:
     )
     assert end_response.status_code == 200
     ended = end_response.json()
-    assert ended["status"] == "completed"
-    assert ended["duration_seconds"] == 330
+    assert ended["CDR_Top_Call_Status"] == "completed"
+    assert ended["CDR_Avg_Talk_Sec"] == 330
     assert ended["notes"] == "customer requested callback"
 
 

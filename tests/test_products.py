@@ -9,11 +9,11 @@ def test_create_and_get_product(client) -> None:
     create_response = client.post("/api/products", json=payload)
     assert create_response.status_code == 201
     created = create_response.json()
-    assert created["code"] == payload["code"]
+    assert created["CRM_Product_Code"] == payload["code"]
 
     get_response = client.get(f"/api/products/{created['id']}")
     assert get_response.status_code == 200
-    assert get_response.json()["name"] == "Term Life Plan"
+    assert get_response.json()["CRM_Product_Name"] == "Term Life Plan"
 
 
 def test_list_update_and_delete_product(client) -> None:
@@ -33,7 +33,7 @@ def test_list_update_and_delete_product(client) -> None:
     )
     assert update_response.status_code == 200
     updated = update_response.json()
-    assert updated["name"] == "ULIP Growth Plus"
+    assert updated["CRM_Product_Name"] == "ULIP Growth Plus"
     assert updated["is_active"] is False
 
     delete_response = client.delete(f"/api/products/{product_id}")

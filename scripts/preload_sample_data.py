@@ -86,6 +86,23 @@ def _source_medium(row: dict[str, object]) -> str:
     return "unknown"
 
 
+def _engagement_channel(row: dict[str, object]) -> str:
+    raw = " ".join(
+        [
+            _str(row.get("CRM_Channel")),
+            _str(row.get("CRM_Data_Medium")),
+            _str(row.get("WEB_Last_Touch_Channel")),
+        ]
+    ).lower()
+    if "whatsapp" in raw:
+        return "whatsapp"
+    if "rcs" in raw:
+        return "rcs"
+    if "email" in raw or "mail" in raw:
+        return "email"
+    return "website"
+
+
 def _normalize_status(row: dict[str, object]) -> str:
     value = " ".join(
         [
@@ -257,6 +274,7 @@ def main() -> None:
             _remove_smoke_records(db)
 
         for row in rows:
+            source_excel_fields = {key: value for key, value in row.items()}
             customer_external_id = _str(row.get("Customer_ID"), 64)
             if not customer_external_id:
                 continue
@@ -271,6 +289,7 @@ def main() -> None:
                     name=product_name,
                     category=product_category,
                     is_active=True,
+                    excel_fields=source_excel_fields,
                 )
                 db.add(product)
                 db.flush()
@@ -287,6 +306,7 @@ def main() -> None:
                     name=campaign_name,
                     channel=campaign_channel,
                     status="active",
+                    excel_fields=source_excel_fields,
                 )
                 db.add(campaign)
                 db.flush()
@@ -306,6 +326,7 @@ def main() -> None:
                     crm_tobacco_user=_str(row.get("CRM_Tobacco_User"), 16) or None,
                     crm_nonresident_flag=_str(row.get("CRM_NonResident_Flag"), 16) or None,
                     crm_existing_plan_flag=_str(row.get("CRM_Existing_Plan_Flag"), 64) or None,
+                    excel_fields=source_excel_fields,
                 )
                 db.add(customer)
                 db.flush()
@@ -322,6 +343,7 @@ def main() -> None:
                 customer.crm_existing_plan_flag = customer.crm_existing_plan_flag or (
                     _str(row.get("CRM_Existing_Plan_Flag"), 64) or None
                 )
+                customer.excel_fields = customer.excel_fields or source_excel_fields
 
             source_channel = _source_channel(row)
             source_medium = _source_medium(row)
@@ -373,6 +395,7 @@ def main() -> None:
                             "crm_channel": _str(row.get("CRM_Channel"), 64),
                             "crm_lead_type": _str(row.get("CRM_Lead_Type"), 64),
                         },
+                        excel_fields=source_excel_fields,
                         is_current=True,
                     )
                 )
@@ -390,6 +413,7 @@ def main() -> None:
                             "label_basis": _str(row.get("Label_Basis"), 64),
                             "label_customer_validity": _as_int(row.get("LABEL_Customer_Validity"), default=0),
                         },
+                        excel_fields=source_excel_fields,
                     )
                 )
                 created["lead_timeline_events"] += 1
@@ -407,7 +431,7 @@ def main() -> None:
                         lead_id=lead.id,
                         customer_id=customer.id,
                         campaign_id=campaign.id,
-                        channel=_slug(source_channel, 32),
+                        channel=_engagement_channel(row),
                         metric_type="engaged",
                         metric_value=metric_value,
                         event_payload={
@@ -420,6 +444,7 @@ def main() -> None:
                             "msg_read": _as_int(row.get("MSG_Read"), default=0),
                             "msg_clicked": _as_int(row.get("MSG_Clicked"), default=0),
                         },
+                        excel_fields=source_excel_fields,
                     )
                 )
                 created["engagement_events"] += 1
@@ -446,6 +471,7 @@ def main() -> None:
                             "quoted_price": _as_float(row.get("WEB_Quoted_Price"), default=0.0),
                             "coverage_amount": _as_float(row.get("WEB_Coverage_Amount"), default=0.0),
                         },
+                        excel_fields=source_excel_fields,
                     )
                 )
                 created["website_events"] += 1
@@ -467,6 +493,7 @@ def main() -> None:
                     status="completed" if status_value == "converted" else "open",
                     priority=priority,
                     due_at=due_at,
+                    excel_fields=source_excel_fields,
                 )
                 db.add(task)
                 db.flush()
@@ -486,6 +513,7 @@ def main() -> None:
                     status="completed" if status_value == "converted" else "pending",
                     scheduled_at=datetime.now(UTC) + timedelta(days=1),
                     completed_at=datetime.now(UTC) if status_value == "converted" else None,
+                    excel_fields=source_excel_fields,
                 )
                 db.add(followup)
                 created["followups"] += 1
@@ -508,6 +536,7 @@ def main() -> None:
                             started_at=started,
                             ended_at=ended,
                             duration_seconds=avg_talk_sec,
+                            excel_fields=source_excel_fields,
                         )
                     )
                     created["calls"] += 1

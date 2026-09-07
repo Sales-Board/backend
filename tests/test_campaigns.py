@@ -32,7 +32,7 @@ def test_campaign_crud(client) -> None:
     )
     assert update_response.status_code == 200
     updated = update_response.json()
-    assert updated["name"] == "Q4 Push Updated"
+    assert updated["CRM_UTM_Campaign"] == "Q4 Push Updated"
     assert updated["status"] == "paused"
 
     delete_response = client.delete(f"/api/campaigns/{campaign_id}")

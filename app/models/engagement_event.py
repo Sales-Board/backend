@@ -29,6 +29,7 @@ class EngagementEvent(Base):
     metric_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     metric_value: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
     event_payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    excel_fields: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     event_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

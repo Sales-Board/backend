@@ -95,7 +95,7 @@ def test_end_to_end_integration_flow(client) -> None:
         json={"ended_at": datetime(2026, 9, 8, 12, 3, tzinfo=UTC).isoformat()},
     )
     assert end_response.status_code == 200
-    assert end_response.json()["duration_seconds"] == 180
+    assert end_response.json()["CDR_Avg_Talk_Sec"] == 180
 
     train_response = client.post("/api/ml/train", json={"model_name": "lead_conversion_baseline"})
     assert train_response.status_code == 201

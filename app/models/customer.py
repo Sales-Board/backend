@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import DateTime, Integer, JSON, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -23,6 +23,7 @@ class Customer(Base):
     crm_tobacco_user: Mapped[str | None] = mapped_column(String(16), nullable=True)
     crm_nonresident_flag: Mapped[str | None] = mapped_column(String(16), nullable=True)
     crm_existing_plan_flag: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    excel_fields: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

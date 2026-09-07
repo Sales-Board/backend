@@ -1,4 +1,6 @@
-# API Specification (Initial)
+# API Specification
+
+All data-bearing responses sourced from `backend/sample_data.xlsx` expose an `Excel_Fields` object containing the original workbook column names and values. Direct public fields use the workbook names where a one-to-one mapping exists. Internal relational identifiers and workflow metadata remain explicit internal fields when the workbook has no equivalent column.
 
 ## Base
 

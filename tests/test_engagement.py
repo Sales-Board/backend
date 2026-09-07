@@ -65,11 +65,11 @@ def test_engagement_channel_endpoints(client, db_session) -> None:
     assert whatsapp_resp.status_code == 200
     whatsapp_events = whatsapp_resp.json()
     assert len(whatsapp_events) == 1
-    assert whatsapp_events[0]["channel"] == "whatsapp"
+    assert whatsapp_events[0]["CRM_Channel"] == "whatsapp"
 
     email_resp = client.get("/api/engagement/email")
     assert email_resp.status_code == 200
-    assert any(item["channel"] == "email" for item in email_resp.json())
+    assert any(item["CRM_Channel"] == "email" for item in email_resp.json())
 
     website_resp = client.get(f"/api/engagement/website?lead_id={lead_id}")
     assert website_resp.status_code == 200

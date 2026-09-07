@@ -30,4 +30,5 @@ class LeadAssignment(Base):
     )
     is_current: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true", index=True)
     details: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    excel_fields: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

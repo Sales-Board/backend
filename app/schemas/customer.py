@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
@@ -81,5 +82,6 @@ class CustomerRead(CustomerBase):
     external_customer_id: str = Field(serialization_alias="Customer_ID")
     created_at: datetime
     updated_at: datetime
+    excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

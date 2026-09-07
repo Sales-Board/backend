@@ -1,11 +1,22 @@
 from datetime import date, datetime
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class CampaignBase(BaseModel):
-    name: str = Field(min_length=1, max_length=150)
-    channel: str | None = Field(default=None, max_length=64)
+    name: str = Field(
+        min_length=1,
+        max_length=150,
+        validation_alias=AliasChoices("name", "CRM_UTM_Campaign"),
+        serialization_alias="CRM_UTM_Campaign",
+    )
+    channel: str | None = Field(
+        default=None,
+        max_length=64,
+        validation_alias=AliasChoices("channel", "CRM_UTM_Source"),
+        serialization_alias="CRM_UTM_Source",
+    )
     status: str = Field(default="active", min_length=1, max_length=32)
     start_date: date | None = None
     end_date: date | None = None
@@ -29,8 +40,9 @@ class CampaignRead(CampaignBase):
     code: str
     created_at: datetime
     updated_at: datetime
+    excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class CampaignPerformance(BaseModel):
