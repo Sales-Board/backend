@@ -140,6 +140,22 @@ All endpoints are under `/api` prefix.
 - `GET /leads/{lead_id}/outcomes`
 	- Lists outcome history.
 
+## Excel-Aligned API Fields
+
+Customer APIs now return CRM-style fields aligned with `sample_data.xlsx`:
+
+- `Customer_ID`
+- `CRM_Gender`
+- `CRM_Age_Band`
+- `CRM_Income_Band`
+- `CRM_Occupation`
+- `CRM_Education`
+- `CRM_Tobacco_User`
+- `CRM_NonResident_Flag`
+- `CRM_Existing_Plan_Flag`
+
+This avoids misuse of generic fields like `first_name` for demographic values.
+
 ## Data Processing Flow
 
 1. Data import API records import jobs and metadata.

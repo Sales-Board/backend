@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:03:51 UTC
+Generated: 2026-09-07 21:10:53 UTC
 
 ## 1. Executive Summary
 
@@ -459,25 +459,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Customers
 - Tags: customers
 - Request: params=skip(query), limit(query)
-- Responses: 200: items[created_at], items[email], items[external_customer_id], items[first_name], items[id], items[last_name], items[phone], items[updated_at] | 422: detail
+- Responses: 200: items[CRM_Age_Band], items[CRM_Education], items[CRM_Existing_Plan_Flag], items[CRM_Gender], items[CRM_Income_Band], items[CRM_NonResident_Flag], items[CRM_Occupation], items[CRM_Tobacco_User], ... | 422: detail
 
 ### POST /api/customers
 - Summary: Create Customer
 - Tags: customers
-- Request: body=email, external_customer_id, first_name, last_name, phone
-- Responses: 201: created_at, email, external_customer_id, first_name, id, last_name, phone, updated_at | 422: detail
+- Request: body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, email, external_customer_id, ...
+- Responses: 201: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### GET /api/customers/{customer_id}
 - Summary: Get Customer
 - Tags: customers
 - Request: params=customer_id(path)
-- Responses: 200: created_at, email, external_customer_id, first_name, id, last_name, phone, updated_at | 422: detail
+- Responses: 200: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### PATCH /api/customers/{customer_id}
 - Summary: Update Customer
 - Tags: customers
-- Request: params=customer_id(path) ; body=email, external_customer_id, first_name, last_name, phone
-- Responses: 200: created_at, email, external_customer_id, first_name, id, last_name, phone, updated_at | 422: detail
+- Request: params=customer_id(path) ; body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, email, external_customer_id, ...
+- Responses: 200: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### DELETE /api/customers/{customer_id}
 - Summary: Delete Customer

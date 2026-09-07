@@ -1,8 +1,8 @@
 def test_create_and_get_customer(client) -> None:
     payload = {
-        "external_customer_id": "CUST-001",
-        "first_name": "Asha",
-        "last_name": "Rao",
+        "Customer_ID": "CUST-001",
+        "CRM_Gender": "female",
+        "CRM_Age_Band": "26-35",
         "email": "asha@example.com",
         "phone": "+910000000001",
     }
@@ -10,19 +10,21 @@ def test_create_and_get_customer(client) -> None:
     create_response = client.post("/api/customers", json=payload)
     assert create_response.status_code == 201
     created = create_response.json()
-    assert created["external_customer_id"] == payload["external_customer_id"]
+    assert created["Customer_ID"] == payload["Customer_ID"]
+    assert created["CRM_Gender"] == "female"
+    assert created["CRM_Age_Band"] == "26-35"
     assert created["id"] > 0
 
     get_response = client.get(f"/api/customers/{created['id']}")
     assert get_response.status_code == 200
     fetched = get_response.json()
-    assert fetched["first_name"] == "Asha"
+    assert fetched["Customer_ID"] == "CUST-001"
 
 
 def test_list_update_and_delete_customer(client) -> None:
     create_response = client.post(
         "/api/customers",
-        json={"external_customer_id": "CUST-002", "first_name": "Vikram"},
+        json={"Customer_ID": "CUST-002", "CRM_Gender": "male"},
     )
     customer_id = create_response.json()["id"]
 
@@ -30,9 +32,9 @@ def test_list_update_and_delete_customer(client) -> None:
     assert list_response.status_code == 200
     assert any(item["id"] == customer_id for item in list_response.json())
 
-    update_response = client.patch(f"/api/customers/{customer_id}", json={"last_name": "Singh"})
+    update_response = client.patch(f"/api/customers/{customer_id}", json={"CRM_Occupation": "Engineer"})
     assert update_response.status_code == 200
-    assert update_response.json()["last_name"] == "Singh"
+    assert update_response.json()["CRM_Occupation"] == "Engineer"
 
     delete_response = client.delete(f"/api/customers/{customer_id}")
     assert delete_response.status_code == 204
@@ -42,7 +44,7 @@ def test_list_update_and_delete_customer(client) -> None:
 
 
 def test_unique_external_customer_id_conflict(client) -> None:
-    payload = {"external_customer_id": "CUST-003", "first_name": "Meera"}
+    payload = {"Customer_ID": "CUST-003", "CRM_Gender": "female"}
 
     first = client.post("/api/customers", json=payload)
     assert first.status_code == 201

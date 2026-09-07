@@ -296,12 +296,32 @@ def main() -> None:
             if customer is None:
                 customer = Customer(
                     external_customer_id=customer_external_id,
-                    first_name=_str(row.get("CRM_Gender"), 100) or "Customer",
-                    last_name=_str(row.get("CRM_Age_Band"), 100) or customer_external_id,
+                    first_name=None,
+                    last_name=None,
+                    crm_gender=_str(row.get("CRM_Gender"), 32) or None,
+                    crm_age_band=_str(row.get("CRM_Age_Band"), 32) or None,
+                    crm_income_band=_str(row.get("CRM_Income_Band"), 32) or None,
+                    crm_occupation=_str(row.get("CRM_Occupation"), 100) or None,
+                    crm_education=_str(row.get("CRM_Education"), 100) or None,
+                    crm_tobacco_user=_str(row.get("CRM_Tobacco_User"), 16) or None,
+                    crm_nonresident_flag=_str(row.get("CRM_NonResident_Flag"), 16) or None,
+                    crm_existing_plan_flag=_str(row.get("CRM_Existing_Plan_Flag"), 64) or None,
                 )
                 db.add(customer)
                 db.flush()
                 created["customers"] += 1
+            else:
+                # Backfill CRM columns for existing rows if missing.
+                customer.crm_gender = customer.crm_gender or (_str(row.get("CRM_Gender"), 32) or None)
+                customer.crm_age_band = customer.crm_age_band or (_str(row.get("CRM_Age_Band"), 32) or None)
+                customer.crm_income_band = customer.crm_income_band or (_str(row.get("CRM_Income_Band"), 32) or None)
+                customer.crm_occupation = customer.crm_occupation or (_str(row.get("CRM_Occupation"), 100) or None)
+                customer.crm_education = customer.crm_education or (_str(row.get("CRM_Education"), 100) or None)
+                customer.crm_tobacco_user = customer.crm_tobacco_user or (_str(row.get("CRM_Tobacco_User"), 16) or None)
+                customer.crm_nonresident_flag = customer.crm_nonresident_flag or (_str(row.get("CRM_NonResident_Flag"), 16) or None)
+                customer.crm_existing_plan_flag = customer.crm_existing_plan_flag or (
+                    _str(row.get("CRM_Existing_Plan_Flag"), 64) or None
+                )
 
             source_channel = _source_channel(row)
             source_medium = _source_medium(row)

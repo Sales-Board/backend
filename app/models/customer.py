@@ -15,6 +15,14 @@ class Customer(Base):
     last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    crm_gender: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    crm_age_band: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    crm_income_band: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    crm_occupation: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    crm_education: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    crm_tobacco_user: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    crm_nonresident_flag: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    crm_existing_plan_flag: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
