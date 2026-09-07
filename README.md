@@ -13,6 +13,7 @@ Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/
 Step 7 complete: Website/Event Journey domain with lead journey endpoint, journey query APIs, migration, and tests.
 Step 8 complete: Calls domain with CRUD, start/end lifecycle APIs, lead calls endpoint, migration, and tests.
 Step 9 complete: Data Import Pipeline with import job tracking, data quality/validation reports, history, export API, migration, and tests.
+Step 10 complete: ML Pipeline with baseline model training, training-job tracking, model listing APIs, migration, and tests.
 
 ## Tech Stack
 
@@ -182,7 +183,7 @@ backend/
 7. Website/Event Journey (done)
 8. Calls (done)
 9. Data Import Pipeline (done)
-10. ML Pipeline
+10. ML Pipeline (done)
 11. AI Prediction APIs
 12. Decision Engine
 13. Tasks / Follow-ups

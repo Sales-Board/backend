@@ -105,6 +105,14 @@ Status: Implemented CRUD and call lifecycle endpoints.
 9. `GET /api/ai/leads/{id}`
 10. `GET /api/ai/customers/{id}`
 
+## ML Pipeline
+
+Status: Implemented baseline training pipeline and model registry endpoints.
+
+1. `POST /api/ml/train`
+2. `GET /api/ml/train/{job_id}`
+3. `GET /api/ml/models`
+
 ## Tasks and Followups
 
 1. `GET /api/tasks`
