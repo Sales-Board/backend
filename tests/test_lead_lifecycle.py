@@ -84,3 +84,28 @@ def test_lead_lifecycle_details_assignment_timeline_and_outcome(client) -> None:
     assert details["assignment"]["to_section"] == "sales"
     assert isinstance(details["timeline"], list)
     assert isinstance(details["outcomes"], list)
+
+
+def test_lead_response_preserves_excel_fields(client) -> None:
+    customer_id = _create_customer(client, "CUST-LIFE-EXCEL")
+    response = client.post(
+        "/api/leads",
+        json={
+            "customer_id": customer_id,
+            "CRM_Channel": "INHOUSE_ONLINE",
+            "CRM_Data_Medium": "LP_2",
+            "Label_Source_Lead_Status": "new",
+            "Excel_Fields": {
+                "Customer_ID": "CUST-LIFE-EXCEL",
+                "CRM_Channel": "INHOUSE_ONLINE",
+                "CRM_Gender": "female",
+                "WEB_Page_Views": 12,
+            },
+        },
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["CRM_Channel"] == "INHOUSE_ONLINE"
+    assert body["CRM_Data_Medium"] == "LP_2"
+    assert body["Excel_Fields"]["CRM_Gender"] == "female"
+    assert body["Excel_Fields"]["WEB_Page_Views"] == 12

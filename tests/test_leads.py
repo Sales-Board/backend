@@ -1,7 +1,7 @@
 def _create_customer(client, external_id: str = "CUST-L-001") -> int:
     response = client.post(
         "/api/customers",
-        json={"external_customer_id": external_id, "first_name": "Lead Owner"},
+        json={"Customer_ID": external_id, "CRM_Gender": "unknown"},
     )
     assert response.status_code == 201
     return response.json()["id"]
@@ -11,10 +11,10 @@ def test_create_and_get_lead(client) -> None:
     customer_id = _create_customer(client, "CUST-L-002")
 
     payload = {
-        "customer_id": customer_id,
-        "source_channel": "website",
-        "source_medium": "organic",
-        "status": "new",
+        "Customer_ID": customer_id,
+        "CRM_Channel": "website",
+        "CRM_Data_Medium": "organic",
+        "Label_Source_Lead_Status": "new",
         "priority": "high",
     }
 
@@ -25,7 +25,7 @@ def test_create_and_get_lead(client) -> None:
 
     get_response = client.get(f"/api/leads/{created['id']}")
     assert get_response.status_code == 200
-    assert get_response.json()["source_channel"] == "website"
+    assert get_response.json()["CRM_Channel"] == "website"
 
 
 def test_list_update_and_delete_lead(client) -> None:
@@ -33,7 +33,7 @@ def test_list_update_and_delete_lead(client) -> None:
 
     create_response = client.post(
         "/api/leads",
-        json={"customer_id": customer_id, "source_channel": "email", "status": "new", "priority": "medium"},
+        json={"Customer_ID": customer_id, "CRM_Channel": "email", "Label_Source_Lead_Status": "new", "priority": "medium"},
     )
     lead_id = create_response.json()["id"]
 
@@ -44,7 +44,7 @@ def test_list_update_and_delete_lead(client) -> None:
     update_response = client.patch(f"/api/leads/{lead_id}", json={"status": "qualified", "priority": "high"})
     assert update_response.status_code == 200
     updated = update_response.json()
-    assert updated["status"] == "qualified"
+    assert updated["Label_Source_Lead_Status"] == "qualified"
     assert updated["priority"] == "high"
 
     delete_response = client.delete(f"/api/leads/{lead_id}")
@@ -57,7 +57,7 @@ def test_list_update_and_delete_lead(client) -> None:
 def test_create_lead_with_invalid_customer_fails(client) -> None:
     response = client.post(
         "/api/leads",
-        json={"customer_id": 999999, "source_channel": "website", "status": "new", "priority": "low"},
+        json={"Customer_ID": 999999, "CRM_Channel": "website", "Label_Source_Lead_Status": "new", "priority": "low"},
     )
     assert response.status_code == 400
     assert "customer_id" in response.json()["detail"]

@@ -351,6 +351,7 @@ def main() -> None:
                     priority=priority,
                     lead_score=lead_score,
                     recommended_action=_next_action_hint(row),
+                    excel_fields={key: value for key, value in row.items()},
                 )
                 db.add(lead)
                 db.flush()
@@ -392,6 +393,8 @@ def main() -> None:
                     )
                 )
                 created["lead_timeline_events"] += 1
+            else:
+                lead.excel_fields = lead.excel_fields or {key: value for key, value in row.items()}
 
             existing_event = db.scalar(select(EngagementEvent.id).where(EngagementEvent.lead_id == lead.id))
             if existing_event is None:

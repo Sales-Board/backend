@@ -156,6 +156,8 @@ Customer APIs now return CRM-style fields aligned with `sample_data.xlsx`:
 
 This avoids misuse of generic fields like `first_name` for demographic values.
 
+Lead responses additionally return `Excel_Fields`, an object containing all 91 original `sample_data.xlsx` column names and values for that lead. Internal relational keys such as `customer_id` and `campaign_id` remain numeric database references; the original Excel `Customer_ID` is available inside `Excel_Fields` and in the related customer object's `Customer_ID` field.
+
 ## Data Processing Flow
 
 1. Data import API records import jobs and metadata.

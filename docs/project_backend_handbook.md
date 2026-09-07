@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:10:53 UTC
+Generated: 2026-09-07 21:15:34 UTC
 
 ## 1. Executive Summary
 
@@ -447,7 +447,7 @@ Total API paths in OpenAPI: 62
 - Summary: List Campaign Leads
 - Tags: campaigns
 - Request: params=campaign_id(path), skip(query), limit(query)
-- Responses: 200: items[campaign_id], items[created_at], items[current_handler], items[current_section], items[current_stage], items[customer_id], items[id], items[lead_score], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[CRM_Data_Medium], items[Excel_Fields], items[Label_Source_Lead_Status], items[campaign_id], items[created_at], items[current_handler], items[current_section], ... | 422: detail
 
 ### GET /api/campaigns/{campaign_id}/performance
 - Summary: Get Campaign Performance
@@ -609,25 +609,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Leads
 - Tags: leads
 - Request: params=skip(query), limit(query), customer_id(query), campaign_id(query)
-- Responses: 200: items[campaign_id], items[created_at], items[current_handler], items[current_section], items[current_stage], items[customer_id], items[id], items[lead_score], ... | 422: detail
+- Responses: 200: items[CRM_Channel], items[CRM_Data_Medium], items[Excel_Fields], items[Label_Source_Lead_Status], items[campaign_id], items[created_at], items[current_handler], items[current_section], ... | 422: detail
 
 ### POST /api/leads
 - Summary: Create Lead
 - Tags: leads
-- Request: body=campaign_id, current_handler, current_section, current_stage, customer_id, lead_score, priority, recommended_action, source_channel, source_medium, ...
-- Responses: 201: campaign_id, created_at, current_handler, current_section, current_stage, customer_id, id, lead_score, ... | 422: detail
+- Request: body=campaign_id, current_handler, current_section, current_stage, customer_id, excel_fields, lead_score, priority, recommended_action, source_channel, ...
+- Responses: 201: CRM_Channel, CRM_Data_Medium, Excel_Fields, Label_Source_Lead_Status, campaign_id, created_at, current_handler, current_section, ... | 422: detail
 
 ### GET /api/leads/{lead_id}
 - Summary: Get Lead
 - Tags: leads
 - Request: params=lead_id(path)
-- Responses: 200: campaign_id, created_at, current_handler, current_section, current_stage, customer_id, id, lead_score, ... | 422: detail
+- Responses: 200: CRM_Channel, CRM_Data_Medium, Excel_Fields, Label_Source_Lead_Status, campaign_id, created_at, current_handler, current_section, ... | 422: detail
 
 ### PATCH /api/leads/{lead_id}
 - Summary: Update Lead
 - Tags: leads
-- Request: params=lead_id(path) ; body=campaign_id, current_handler, current_section, current_stage, customer_id, lead_score, priority, recommended_action, source_channel, source_medium, ...
-- Responses: 200: campaign_id, created_at, current_handler, current_section, current_stage, customer_id, id, lead_score, ... | 422: detail
+- Request: params=lead_id(path) ; body=campaign_id, current_handler, current_section, current_stage, customer_id, excel_fields, lead_score, priority, recommended_action, source_channel, ...
+- Responses: 200: CRM_Channel, CRM_Data_Medium, Excel_Fields, Label_Source_Lead_Status, campaign_id, created_at, current_handler, current_section, ... | 422: detail
 
 ### DELETE /api/leads/{lead_id}
 - Summary: Delete Lead
