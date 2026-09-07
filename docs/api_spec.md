@@ -123,6 +123,8 @@ Status: Implemented CRUD and call lifecycle endpoints.
 
 ## Data Management
 
+Status: Implemented import profiling jobs, job lookup, quality report, validation report, history, and export endpoints.
+
 1. `POST /api/data/import`
 2. `GET /api/data/import/{job_id}`
 3. `GET /api/data/quality`

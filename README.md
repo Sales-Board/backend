@@ -12,6 +12,7 @@ Step 5 complete: Product domain with full CRUD APIs, persistence model, migratio
 Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/performance APIs, engagement channel APIs, migration, and tests.
 Step 7 complete: Website/Event Journey domain with lead journey endpoint, journey query APIs, migration, and tests.
 Step 8 complete: Calls domain with CRUD, start/end lifecycle APIs, lead calls endpoint, migration, and tests.
+Step 9 complete: Data Import Pipeline with import job tracking, data quality/validation reports, history, export API, migration, and tests.
 
 ## Tech Stack
 
@@ -101,6 +102,7 @@ backend/
 │   │   │   ├── campaigns.py
 │   │   │   ├── calls.py
 │   │   │   ├── customers.py
+│   │   │   ├── data.py
 │   │   │   ├── engagement.py
 │   │   │   ├── health.py
 │   │   │   ├── journey.py
@@ -111,6 +113,7 @@ backend/
 │   │   ├── call.py
 │   │   ├── campaign.py
 │   │   ├── customer.py
+│   │   ├── data_import_job.py
 │   │   ├── engagement_event.py
 │   │   ├── lead.py
 │   │   ├── product.py
@@ -119,6 +122,7 @@ backend/
 │   │   ├── call_repository.py
 │   │   ├── campaign_repository.py
 │   │   ├── customer_repository.py
+│   │   ├── data_repository.py
 │   │   ├── engagement_repository.py
 │   │   ├── lead_repository.py
 │   │   ├── product_repository.py
@@ -127,6 +131,7 @@ backend/
 │   │   ├── call_service.py
 │   │   ├── campaign_service.py
 │   │   ├── customer_service.py
+│   │   ├── data_service.py
 │   │   ├── engagement_service.py
 │   │   ├── lead_service.py
 │   │   ├── product_service.py
@@ -139,6 +144,7 @@ backend/
 │   │   ├── call.py
 │   │   ├── campaign.py
 │   │   ├── customer.py
+│   │   ├── data_management.py
 │   │   ├── engagement.py
 │   │   ├── health.py
 │   │   ├── lead.py
@@ -153,6 +159,7 @@ backend/
 │   ├── test_calls.py
 │   ├── test_campaigns.py
 │   ├── test_customers.py
+│   ├── test_data_pipeline.py
 │   ├── test_engagement.py
 │   ├── test_health.py
 │   ├── test_journey.py
@@ -174,7 +181,7 @@ backend/
 6. Campaign + Engagement (done)
 7. Website/Event Journey (done)
 8. Calls (done)
-9. Data Import Pipeline
+9. Data Import Pipeline (done)
 10. ML Pipeline
 11. AI Prediction APIs
 12. Decision Engine
