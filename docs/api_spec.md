@@ -31,6 +31,8 @@
 
 ## Customers
 
+Status: Implemented CRUD endpoints.
+
 1. `GET /api/customers`
 2. `POST /api/customers`
 3. `GET /api/customers/{id}`
