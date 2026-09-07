@@ -15,6 +15,7 @@ Step 8 complete: Calls domain with CRUD, start/end lifecycle APIs, lead calls en
 Step 9 complete: Data Import Pipeline with import job tracking, data quality/validation reports, history, export API, migration, and tests.
 Step 10 complete: ML Pipeline with baseline model training, training-job tracking, model listing APIs, migration, and tests.
 Step 11 complete: AI Prediction APIs with baseline scoring, full endpoint surface, prediction logs, migration, and tests.
+Step 12 complete: Decision Engine with next-action recommendations, decision logs, migration, and tests.
 
 ## Tech Stack
 
@@ -186,7 +187,7 @@ backend/
 9. Data Import Pipeline (done)
 10. ML Pipeline (done)
 11. AI Prediction APIs (done)
-12. Decision Engine
+12. Decision Engine (done)
 13. Tasks / Follow-ups
 14. Analytics
 15. Reports

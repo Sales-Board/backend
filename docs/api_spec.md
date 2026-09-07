@@ -107,6 +107,14 @@ Status: Implemented all AI prediction endpoints with baseline artifact-backed sc
 9. `GET /api/ai/leads/{id}`
 10. `GET /api/ai/customers/{id}`
 
+## Decision Engine
+
+Status: Implemented next-action recommendations and decision log retrieval endpoints.
+
+1. `POST /api/decision/next-action`
+2. `GET /api/decision/leads/{id}`
+3. `GET /api/decision/customers/{id}`
+
 ## ML Pipeline
 
 Status: Implemented baseline training pipeline and model registry endpoints.

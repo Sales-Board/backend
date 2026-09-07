@@ -5,6 +5,7 @@ from app.api.routes.campaigns import router as campaigns_router
 from app.api.routes.calls import router as calls_router
 from app.api.routes.customers import router as customers_router
 from app.api.routes.data import router as data_router
+from app.api.routes.decision import router as decision_router
 from app.api.routes.engagement import router as engagement_router
 from app.api.routes.health import router as health_router
 from app.api.routes.journey import router as journey_router
@@ -25,6 +26,7 @@ v1_router.include_router(ai_router)
 v1_router.include_router(campaigns_router)
 v1_router.include_router(calls_router)
 v1_router.include_router(data_router)
+v1_router.include_router(decision_router)
 v1_router.include_router(engagement_router)
 v1_router.include_router(journey_router)
 v1_router.include_router(ml_router)

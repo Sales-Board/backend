@@ -5,6 +5,7 @@ from app.models.campaign import Campaign
 from app.models.call import Call
 from app.models.customer import Customer
 from app.models.data_import_job import DataImportJob
+from app.models.decision_recommendation import DecisionRecommendation
 from app.models.engagement_event import EngagementEvent
 from app.models.lead import Lead
 from app.models.ml_training_job import MLTrainingJob
@@ -17,6 +18,7 @@ __all__ = [
 	"Campaign",
 	"Customer",
 	"DataImportJob",
+	"DecisionRecommendation",
 	"EngagementEvent",
 	"Lead",
 	"MLTrainingJob",
