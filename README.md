@@ -7,6 +7,7 @@ Modular FastAPI backend for a sales and lead intelligence platform where lead li
 Step 1 complete: project foundation, API bootstrap, health endpoint, and dataset/domain planning docs.
 Step 2 complete: PostgreSQL + SQLAlchemy + Alembic foundation with DB-aware health checks.
 Step 3 complete: Customer domain with full CRUD APIs, persistence model, migration, and tests.
+Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, and tests.
 
 ## Tech Stack
 
@@ -24,6 +25,12 @@ Step 3 complete: Customer domain with full CRUD APIs, persistence model, migrati
 
 ```bash
 pip install -r requirements.txt
+```
+
+Optional ML stack (later roadmap steps):
+
+```bash
+pip install -r requirements-ml.txt
 ```
 
 3. Copy environment file:
@@ -88,21 +95,26 @@ backend/
 │   ├── api/
 │   │   ├── routes/
 │   │   │   ├── customers.py
-│   │   │   └── health.py
+│   │   │   ├── health.py
+│   │   │   └── leads.py
 │   │   └── router.py
 │   ├── models/
-│   │   └── customer.py
+│   │   ├── customer.py
+│   │   └── lead.py
 │   ├── repositories/
-│   │   └── customer_repository.py
+│   │   ├── customer_repository.py
+│   │   └── lead_repository.py
 │   ├── services/
-│   │   └── customer_service.py
+│   │   ├── customer_service.py
+│   │   └── lead_service.py
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── exceptions.py
 │   │   └── logging.py
 │   ├── schemas/
 │   │   ├── customer.py
-│   │   └── health.py
+│   │   ├── health.py
+│   │   └── lead.py
 │   └── main.py
 ├── docs/
 │   ├── api_spec.md
@@ -110,7 +122,8 @@ backend/
 │   └── schema_proposal.md
 ├── tests/
 │   ├── test_customers.py
-│   └── test_health.py
+│   ├── test_health.py
+│   └── test_leads.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -122,7 +135,7 @@ backend/
 1. Project Foundation (done)
 2. PostgreSQL + SQLAlchemy + Alembic (done)
 3. Customer Domain (done)
-4. Lead Domain
+4. Lead Domain (done)
 5. Product Domain
 6. Campaign + Engagement
 7. Website/Event Journey

@@ -16,6 +16,8 @@
 
 ## Leads
 
+Status: Implemented base CRUD endpoints (timeline/engagement/journey/calls/ai pending).
+
 1. `GET /api/leads`
 2. `POST /api/leads`
 3. `GET /api/leads/{id}`
