@@ -12,10 +12,13 @@ class LeadRepository:
         skip: int = 0,
         limit: int = 100,
         customer_id: int | None = None,
+        campaign_id: int | None = None,
     ) -> list[Lead]:
         stmt = select(Lead).order_by(Lead.id).offset(skip).limit(limit)
         if customer_id is not None:
             stmt = stmt.where(Lead.customer_id == customer_id)
+        if campaign_id is not None:
+            stmt = stmt.where(Lead.campaign_id == campaign_id)
         return list(db.scalars(stmt).all())
 
     def get(self, db: Session, lead_id: int) -> Lead | None:

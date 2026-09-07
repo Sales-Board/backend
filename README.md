@@ -9,6 +9,7 @@ Step 2 complete: PostgreSQL + SQLAlchemy + Alembic foundation with DB-aware heal
 Step 3 complete: Customer domain with full CRUD APIs, persistence model, migration, and tests.
 Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, and tests.
 Step 5 complete: Product domain with full CRUD APIs, persistence model, migration, and tests.
+Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/performance APIs, engagement channel APIs, migration, and tests.
 
 ## Tech Stack
 
@@ -95,21 +96,29 @@ backend/
 ├── app/
 │   ├── api/
 │   │   ├── routes/
+│   │   │   ├── campaigns.py
 │   │   │   ├── customers.py
+│   │   │   ├── engagement.py
 │   │   │   ├── health.py
 │   │   │   ├── leads.py
 │   │   │   └── products.py
 │   │   └── router.py
 │   ├── models/
+│   │   ├── campaign.py
 │   │   ├── customer.py
+│   │   ├── engagement_event.py
 │   │   ├── lead.py
 │   │   └── product.py
 │   ├── repositories/
+│   │   ├── campaign_repository.py
 │   │   ├── customer_repository.py
+│   │   ├── engagement_repository.py
 │   │   ├── lead_repository.py
 │   │   └── product_repository.py
 │   ├── services/
+│   │   ├── campaign_service.py
 │   │   ├── customer_service.py
+│   │   ├── engagement_service.py
 │   │   ├── lead_service.py
 │   │   └── product_service.py
 │   ├── core/
@@ -117,7 +126,9 @@ backend/
 │   │   ├── exceptions.py
 │   │   └── logging.py
 │   ├── schemas/
+│   │   ├── campaign.py
 │   │   ├── customer.py
+│   │   ├── engagement.py
 │   │   ├── health.py
 │   │   ├── lead.py
 │   │   └── product.py
@@ -127,7 +138,9 @@ backend/
 │   ├── data_assessment.md
 │   └── schema_proposal.md
 ├── tests/
+│   ├── test_campaigns.py
 │   ├── test_customers.py
+│   ├── test_engagement.py
 │   ├── test_health.py
 │   ├── test_leads.py
 │   └── test_products.py
@@ -144,7 +157,7 @@ backend/
 3. Customer Domain (done)
 4. Lead Domain (done)
 5. Product Domain (done)
-6. Campaign + Engagement
+6. Campaign + Engagement (done)
 7. Website/Event Journey
 8. Calls
 9. Data Import Pipeline

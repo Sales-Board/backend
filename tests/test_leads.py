@@ -1,36 +1,4 @@
-from collections.abc import Generator
-
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
-
-from app.db.base import Base
-from app.db.database import get_db
-from app.main import app
-
-engine = create_engine(
-    "sqlite+pysqlite:///:memory:",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=Session)
-Base.metadata.create_all(bind=engine)
-
-
-def override_get_db() -> Generator[Session, None, None]:
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-def _create_customer(external_id: str = "CUST-L-001") -> int:
+def _create_customer(client, external_id: str = "CUST-L-001") -> int:
     response = client.post(
         "/api/customers",
         json={"external_customer_id": external_id, "first_name": "Lead Owner"},
@@ -39,8 +7,8 @@ def _create_customer(external_id: str = "CUST-L-001") -> int:
     return response.json()["id"]
 
 
-def test_create_and_get_lead() -> None:
-    customer_id = _create_customer("CUST-L-002")
+def test_create_and_get_lead(client) -> None:
+    customer_id = _create_customer(client, "CUST-L-002")
 
     payload = {
         "customer_id": customer_id,
@@ -60,8 +28,8 @@ def test_create_and_get_lead() -> None:
     assert get_response.json()["source_channel"] == "website"
 
 
-def test_list_update_and_delete_lead() -> None:
-    customer_id = _create_customer("CUST-L-003")
+def test_list_update_and_delete_lead(client) -> None:
+    customer_id = _create_customer(client, "CUST-L-003")
 
     create_response = client.post(
         "/api/leads",
@@ -86,7 +54,7 @@ def test_list_update_and_delete_lead() -> None:
     assert get_deleted.status_code == 404
 
 
-def test_create_lead_with_invalid_customer_fails() -> None:
+def test_create_lead_with_invalid_customer_fails(client) -> None:
     response = client.post(
         "/api/leads",
         json={"customer_id": 999999, "source_channel": "website", "status": "new", "priority": "low"},

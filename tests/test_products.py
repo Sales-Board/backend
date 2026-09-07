@@ -1,36 +1,4 @@
-from collections.abc import Generator
-
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
-
-from app.db.base import Base
-from app.db.database import get_db
-from app.main import app
-
-engine = create_engine(
-    "sqlite+pysqlite:///:memory:",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=Session)
-Base.metadata.create_all(bind=engine)
-
-
-def override_get_db() -> Generator[Session, None, None]:
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-def test_create_and_get_product() -> None:
+def test_create_and_get_product(client) -> None:
     payload = {
         "code": "PROD-TERM-001",
         "name": "Term Life Plan",
@@ -48,7 +16,7 @@ def test_create_and_get_product() -> None:
     assert get_response.json()["name"] == "Term Life Plan"
 
 
-def test_list_update_and_delete_product() -> None:
+def test_list_update_and_delete_product(client) -> None:
     create_response = client.post(
         "/api/products",
         json={"code": "PROD-ULIP-001", "name": "ULIP Growth", "category": "Investment", "is_active": True},
@@ -75,7 +43,7 @@ def test_list_update_and_delete_product() -> None:
     assert get_deleted.status_code == 404
 
 
-def test_unique_product_code_conflict() -> None:
+def test_unique_product_code_conflict(client) -> None:
     payload = {"code": "PROD-DUP-001", "name": "Duplicate Product", "category": "Test", "is_active": True}
 
     first = client.post("/api/products", json=payload)

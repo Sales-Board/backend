@@ -14,9 +14,16 @@ def list_leads(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     customer_id: int | None = Query(default=None, ge=1),
+    campaign_id: int | None = Query(default=None, ge=1),
     db: Session = Depends(get_db),
 ) -> list[LeadRead]:
-    return lead_service.list_leads(db, skip=skip, limit=limit, customer_id=customer_id)
+    return lead_service.list_leads(
+        db,
+        skip=skip,
+        limit=limit,
+        customer_id=customer_id,
+        campaign_id=campaign_id,
+    )
 
 
 @router.post("", response_model=LeadRead, status_code=status.HTTP_201_CREATED)

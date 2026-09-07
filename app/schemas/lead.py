@@ -12,10 +12,12 @@ class LeadBase(BaseModel):
 
 class LeadCreate(LeadBase):
     customer_id: int = Field(ge=1)
+    campaign_id: int | None = Field(default=None, ge=1)
 
 
 class LeadUpdate(BaseModel):
     customer_id: int | None = Field(default=None, ge=1)
+    campaign_id: int | None = Field(default=None, ge=1)
     source_channel: str | None = Field(default=None, max_length=64)
     source_medium: str | None = Field(default=None, max_length=64)
     status: str | None = Field(default=None, min_length=1, max_length=32)
@@ -25,6 +27,7 @@ class LeadUpdate(BaseModel):
 class LeadRead(LeadBase):
     id: int
     customer_id: int
+    campaign_id: int | None
     created_at: datetime
     updated_at: datetime
 

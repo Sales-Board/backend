@@ -55,6 +55,8 @@ Status: Implemented CRUD endpoints.
 
 ## Campaigns
 
+Status: Implemented CRUD, campaign leads, and campaign performance endpoints.
+
 1. `GET /api/campaigns`
 2. `POST /api/campaigns`
 3. `GET /api/campaigns/{id}`
@@ -64,6 +66,8 @@ Status: Implemented CRUD endpoints.
 7. `GET /api/campaigns/{id}/performance`
 
 ## Engagement
+
+Status: Implemented channel query endpoints.
 
 1. `GET /api/engagement/whatsapp`
 2. `GET /api/engagement/rcs`

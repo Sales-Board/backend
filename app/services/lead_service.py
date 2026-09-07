@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.campaign import Campaign
 from app.models.customer import Customer
 from app.models.lead import Lead
 from app.repositories.lead_repository import LeadRepository
@@ -17,8 +18,15 @@ class LeadService:
         skip: int = 0,
         limit: int = 100,
         customer_id: int | None = None,
+        campaign_id: int | None = None,
     ) -> list[Lead]:
-        return self.repository.list(db, skip=skip, limit=limit, customer_id=customer_id)
+        return self.repository.list(
+            db,
+            skip=skip,
+            limit=limit,
+            customer_id=customer_id,
+            campaign_id=campaign_id,
+        )
 
     def get_lead(self, db: Session, lead_id: int) -> Lead:
         lead = self.repository.get(db, lead_id)
@@ -28,12 +36,16 @@ class LeadService:
 
     def create_lead(self, db: Session, payload: LeadCreate) -> Lead:
         self._assert_customer_exists(db, payload.customer_id)
+        if payload.campaign_id is not None:
+            self._assert_campaign_exists(db, payload.campaign_id)
         return self.repository.create(db, payload)
 
     def update_lead(self, db: Session, lead_id: int, payload: LeadUpdate) -> Lead:
         lead = self.get_lead(db, lead_id)
         if payload.customer_id is not None:
             self._assert_customer_exists(db, payload.customer_id)
+        if payload.campaign_id is not None:
+            self._assert_campaign_exists(db, payload.campaign_id)
         return self.repository.update(db, lead, payload)
 
     def delete_lead(self, db: Session, lead_id: int) -> None:
@@ -46,4 +58,12 @@ class LeadService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="customer_id does not exist",
+            )
+
+    def _assert_campaign_exists(self, db: Session, campaign_id: int) -> None:
+        campaign = db.get(Campaign, campaign_id)
+        if campaign is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="campaign_id does not exist",
             )
