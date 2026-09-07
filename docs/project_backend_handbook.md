@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:38:42 UTC
+Generated: 2026-09-07 21:41:45 UTC
 
 ## 1. Executive Summary
 
@@ -38,6 +38,17 @@ flowchart LR
   J[Sample Data Loader] --> E
 ```
 
+Excel Ingestion Diagram:
+
+```mermaid
+flowchart LR
+  A[sample_data.xlsx] --> B[Contract Check] --> C[Row Mapping] --> D[(PostgreSQL)]
+  C --> E[CRM / Customer]
+  C --> F[Product / Source]
+  C --> G[CDR / MSG / WEB / ev_]
+  D --> H[Excel_Fields snapshot]
+```
+
 ## 3. Feature Modules
 
 1. Health + Dashboard
@@ -66,6 +77,20 @@ flowchart LR
 5. Decision endpoint combines predictions + rules into next action recommendations.
 6. Lifecycle module adds assignment/transfer, outcome tracking, and timeline events to create a connected business workflow.
 7. Unified lead details endpoint aggregates lead + customer + campaign + engagement + AI + operational activity for frontend rendering.
+
+Feature Mapping Diagram:
+
+```mermaid
+flowchart TD
+  A[CRM_*] --> E[Validity / Intent]
+  B[CDR_*] --> F[Call Readiness]
+  C[MSG_*] --> G[Messaging Intent]
+  D[WEB_* + ev_*] --> H[Journey Progress]
+  E --> I[Derived Lead Score]
+  F --> I
+  G --> I
+  H --> J[Product Fit]
+```
 
 ### 4.1 Sample Data Columns (sample_data.xlsx)
 
@@ -264,6 +289,17 @@ Total columns in dataset sheet: 91
 8. Run tests: ./.venv/bin/pytest -q
 9. Lifecycle-only test: ./.venv/bin/pytest -q tests/test_lead_lifecycle.py
 
+API Flow Diagram:
+
+```mermaid
+flowchart LR
+  A[Client] --> B[Pydantic Excel Names]
+  B --> C[Service Rules]
+  C --> D[Repository]
+  D --> E[(PostgreSQL)]
+  E --> F[Excel_Fields + Derived Outputs]
+```
+
 ## 6. Feature Workflows And Handling
 
 1. Lead intake: create lead -> initial timeline event -> assignment queue.
@@ -289,7 +325,91 @@ flowchart LR
   H --> I[Unified Lead Details API]
 ```
 
-## 7. API Inventory And Response Contracts
+Sales Funnel Diagram:
+
+```mermaid
+flowchart LR
+  A[Source Lead] --> B[Engaged]
+  B --> C[Intent]
+  C --> D[Product / Action]
+  D --> E[Call / Follow-up]
+  E --> F[Outcome]
+  F --> G[Analytics Feedback]
+```
+
+Prediction Guardrail Diagram:
+
+```mermaid
+flowchart LR
+  A[Pre-outcome Excel fields] --> B[Leakage Filter]
+  X[Outcome / target columns] -. excluded .-> B
+  B --> C[Prediction Model]
+  C --> D[Derived Output + Metadata]
+  T[Prediction point] --> D
+```
+
+## 7. Sales Optimization Playbook
+
+The system maximizes productive sales activity by matching the next action to observed customer behavior, product context, contactability, and journey progress. It does not fabricate missing customer information or use outcome columns as prediction inputs.
+
+### 7.1 Stage 1 - Source And Lead Intake
+
+- Identify the lead using Customer_ID and associate source context from CRM_Channel, CRM_Department, CRM_Lead_Type, CRM_Lead_Source, CRM_Data_Medium, CRM_Source, and CRM_Data_Source_Platform.
+- Preserve CRM_Product_Code, CRM_Product_Name, CRM_UTM_Source, CRM_UTM_Medium, and CRM_UTM_Campaign for attribution and product context.
+- Use CRM_Lead_Create_Hour, CRM_Lead_Create_DayOfWeek, CRM_Lead_Create_Weekend, CRM_Lead_Create_Month, CRM_Days_Create_To_Update, CRM_Contact_Count, CRM_NonContact_Count, and CRM_No_Of_Attempts to understand timing and contact history.
+- Do not use Label_Source_Disposition or Label_Source_Lead_Status as predictive inputs; they are observed labels/outcomes.
+
+### 7.2 Stage 2 - Customer And Product Fit
+
+- Build customer context from CRM_Gender, CRM_Age_Band, CRM_Income_Band, CRM_Occupation, CRM_Education, CRM_Tobacco_User, CRM_NonResident_Flag, and CRM_Existing_Plan_Flag.
+- Match products using CRM_Product_Code, CRM_Product_Name, WEB_Plan_Type, WEB_Plan_Variant, WEB_Quoted_Price, WEB_Coverage_Amount, and WEB_Payment_Frequency.
+- Product recommendation is marked unavailable when the source row does not contain enough product or website context.
+
+### 7.3 Stage 3 - Engagement And Intent
+
+- Measure messaging engagement from MSG_Campaigns_Targeted, MSG_Sent, MSG_Delivered, MSG_Read, MSG_Clicked, MSG_Replied, MSG_Failed, and MSG_Engaged.
+- Measure call readiness from every CDR_ field, including CDR_Total_Calls, CDR_Connected_Calls, CDR_Connect_Rate, CDR_Avg_Talk_Sec, CDR_Callbacks_Scheduled, CDR_Top_Call_Status, and CDR_Top_Q_Type.
+- Measure digital intent from WEB_Tracked, Visits, Page_Views, Total_Seconds_Spent, WEB_Step_Name, WEB_Step_Number, WEB_New_Vs_Repeat, and WEB_Device_Type.
+- Use ev_Lead_Creation through ev_Page_Scroll_95 to identify funnel progress, quote activity, form progress, OTP activity, brochure interest, expert connection, and payment journey signals.
+
+### 7.4 Stage 4 - AI And Derived Lead Score
+
+- Customer validity uses LABEL_Customer_Validity as the target only; it is never an input feature.
+- Intent, engagement, segmentation, conversion, and lead score use only pre-outcome CRM, CDR, MSG, WEB, and ev_ fields.
+- CRM_Has_Application_No, CRM_Has_Payment_Flag, ev_Payment_Success, ev_Payment_Failure, Label_Source_Disposition, Label_Source_Lead_Status, and LABEL_Customer_Validity are excluded when they would leak the prediction target.
+- Every prediction response records feature_columns, excluded_columns, target_column, prediction_point, and derived_output.
+
+### 7.5 Stage 5 - Next Best Action
+
+- High contactability and active journey progress should prioritize a timely call or expert handoff.
+- Repeated visits, quote/proposal progress, or expert connection should prioritize product clarification and a focused follow-up.
+- Read/click/reply or meaningful CDR activity should prioritize the channel with observed engagement rather than an assumed channel.
+- Low activity should result in a measured nurture or information action, not an invented customer attribute or unsupported offer.
+- The decision engine uses only Excel-derived signals and stored AI predictions; its recommendation is a derived system output.
+
+### 7.6 Stage 6 - Assignment, Action, And Feedback
+
+- Assign the lead to the operational section indicated by CRM_Department and preserve CRM source attribution.
+- Record calls, tasks, follow-ups, and timeline events with the complete Excel_Fields snapshot attached.
+- Capture outcome feedback only after an action occurs. Do not feed that outcome back into the same prediction request as an input.
+- Use analytics and reports to compare source, product, journey, engagement, and call patterns for future campaign and staffing decisions.
+
+Sales Optimization Diagram:
+
+```mermaid
+flowchart TD
+  A[Exact Excel Row] --> B[Lead and Customer Profile]
+  B --> C[Source and Product Attribution]
+  C --> D[CRM + CDR + MSG + WEB + ev_ Signals]
+  D --> E[Leakage-Safe AI Predictions]
+  E --> F[Derived Lead Score and Next Action]
+  F --> G[Assignment, Call, Task, Follow-up]
+  G --> H[Observed Outcome and Timeline]
+  H --> I[Analytics and Reporting Feedback]
+  I -. improves operations, not same-outcome features .-> C
+```
+
+## 8. API Inventory And Response Contracts
 
 Total API paths in OpenAPI: 62
 
@@ -785,14 +905,14 @@ Total API paths in OpenAPI: 62
 - Request: none
 - Responses: 200: database, status
 
-## 8. Lead Lifecycle Behavior
+## 9. Lead Lifecycle Behavior
 
 1. New lead creation writes lead_created event to timeline.
 2. Assign/transfer updates lead ownership and section, and writes lifecycle events.
 3. Outcome recording can update lead status/stage and auto-create follow-ups.
 4. /leads/{id}/details returns a unified payload for frontend lead workspace rendering.
 
-## 9. Validation Snapshot
+## 10. Validation Snapshot
 
 - Test suite passing (including lifecycle tests).
 - Live smoke APIs passing with real sample data preloaded.
