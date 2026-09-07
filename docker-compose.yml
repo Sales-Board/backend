@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    container_name: lead-intel-api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: lead-intel-db
+    environment:
+      POSTGRES_DB: lead_intelligence
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
