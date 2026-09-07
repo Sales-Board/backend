@@ -10,6 +10,7 @@ Step 3 complete: Customer domain with full CRUD APIs, persistence model, migrati
 Step 4 complete: Lead domain with base CRUD APIs, persistence model, migration, and tests.
 Step 5 complete: Product domain with full CRUD APIs, persistence model, migration, and tests.
 Step 6 complete: Campaign + Engagement domain with campaign CRUD, campaign lead/performance APIs, engagement channel APIs, migration, and tests.
+Step 7 complete: Website/Event Journey domain with lead journey endpoint, journey query APIs, migration, and tests.
 
 ## Tech Stack
 
@@ -100,6 +101,7 @@ backend/
 │   │   │   ├── customers.py
 │   │   │   ├── engagement.py
 │   │   │   ├── health.py
+│   │   │   ├── journey.py
 │   │   │   ├── leads.py
 │   │   │   └── products.py
 │   │   └── router.py
@@ -108,19 +110,22 @@ backend/
 │   │   ├── customer.py
 │   │   ├── engagement_event.py
 │   │   ├── lead.py
-│   │   └── product.py
+│   │   ├── product.py
+│   │   └── website_event.py
 │   ├── repositories/
 │   │   ├── campaign_repository.py
 │   │   ├── customer_repository.py
 │   │   ├── engagement_repository.py
 │   │   ├── lead_repository.py
-│   │   └── product_repository.py
+│   │   ├── product_repository.py
+│   │   └── website_journey_repository.py
 │   ├── services/
 │   │   ├── campaign_service.py
 │   │   ├── customer_service.py
 │   │   ├── engagement_service.py
 │   │   ├── lead_service.py
-│   │   └── product_service.py
+│   │   ├── product_service.py
+│   │   └── website_journey_service.py
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── exceptions.py
@@ -131,7 +136,8 @@ backend/
 │   │   ├── engagement.py
 │   │   ├── health.py
 │   │   ├── lead.py
-│   │   └── product.py
+│   │   ├── product.py
+│   │   └── website_journey.py
 │   └── main.py
 ├── docs/
 │   ├── api_spec.md
@@ -142,6 +148,7 @@ backend/
 │   ├── test_customers.py
 │   ├── test_engagement.py
 │   ├── test_health.py
+│   ├── test_journey.py
 │   ├── test_leads.py
 │   └── test_products.py
 ├── Dockerfile
@@ -158,7 +165,7 @@ backend/
 4. Lead Domain (done)
 5. Product Domain (done)
 6. Campaign + Engagement (done)
-7. Website/Event Journey
+7. Website/Event Journey (done)
 8. Calls
 9. Data Import Pipeline
 10. ML Pipeline

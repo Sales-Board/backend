@@ -3,10 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.lead import LeadCreate, LeadRead, LeadUpdate
+from app.schemas.website_journey import WebsiteEventRead
 from app.services.lead_service import LeadService
+from app.services.website_journey_service import WebsiteJourneyService
 
 router = APIRouter(prefix="/leads", tags=["leads"])
 lead_service = LeadService()
+journey_service = WebsiteJourneyService()
 
 
 @router.get("", response_model=list[LeadRead])
@@ -45,3 +48,14 @@ def update_lead(lead_id: int, payload: LeadUpdate, db: Session = Depends(get_db)
 def delete_lead(lead_id: int, db: Session = Depends(get_db)) -> Response:
     lead_service.delete_lead(db, lead_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/{lead_id}/journey", response_model=list[WebsiteEventRead])
+def get_lead_journey(
+    lead_id: int,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: Session = Depends(get_db),
+) -> list[WebsiteEventRead]:
+    lead_service.get_lead(db, lead_id)
+    return journey_service.list_lead_journey(db, lead_id=lead_id, skip=skip, limit=limit)
