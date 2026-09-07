@@ -17,6 +17,7 @@ Step 10 complete: ML Pipeline with baseline model training, training-job trackin
 Step 11 complete: AI Prediction APIs with baseline scoring, full endpoint surface, prediction logs, migration, and tests.
 Step 12 complete: Decision Engine with next-action recommendations, decision logs, migration, and tests.
 Step 13 complete: Tasks and Follow-ups with task CRUD, follow-up scheduling/update APIs, migration, and tests.
+Step 14 complete: Analytics with dashboard summary, funnel metrics, channel performance APIs, and tests.
 
 ## Tech Stack
 
@@ -190,7 +191,7 @@ backend/
 11. AI Prediction APIs (done)
 12. Decision Engine (done)
 13. Tasks / Follow-ups (done)
-14. Analytics
+14. Analytics (done)
 15. Reports
 16. Integration Testing
 17. Performance Optimization

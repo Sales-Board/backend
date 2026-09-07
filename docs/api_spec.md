@@ -12,6 +12,8 @@
 
 ## Dashboard
 
+Status: Implemented dashboard summary endpoint.
+
 1. `GET /api/dashboard`
 
 ## Leads
@@ -137,6 +139,8 @@ Status: Implemented task CRUD and follow-up list/create/update endpoints.
 8. `PATCH /api/followups/{id}`
 
 ## Analytics and Reports
+
+Status: Implemented analytics overview/funnel/channel endpoints. Reports pending.
 
 1. `GET /api/analytics/*`
 2. `GET /api/reports/*`
