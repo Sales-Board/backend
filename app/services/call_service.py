@@ -63,8 +63,8 @@ class CallService:
 
     def end_call(self, db: Session, call_id: int, payload: CallEndRequest) -> Call:
         call = self.get_call(db, call_id)
-        end_time = payload.ended_at or datetime.now(UTC)
-        start_time = call.started_at or end_time
+        end_time = self._as_utc(payload.ended_at or datetime.now(UTC))
+        start_time = self._as_utc(call.started_at or end_time)
         duration = max(0, int((end_time - start_time).total_seconds()))
 
         call.ended_at = end_time
@@ -73,6 +73,12 @@ class CallService:
         if payload.notes is not None:
             call.notes = payload.notes
         return self.repository.persist(db, call)
+
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
 
     def _validate_links(self, db: Session, lead_id: int | None, customer_id: int | None) -> None:
         if lead_id is not None and db.get(Lead, lead_id) is None:
