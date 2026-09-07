@@ -15,6 +15,7 @@ from app.api.routes.journey import router as journey_router
 from app.api.routes.leads import router as leads_router
 from app.api.routes.ml import router as ml_router
 from app.api.routes.products import router as products_router
+from app.api.routes.reports import router as reports_router
 from app.api.routes.tasks import router as tasks_router
 from app.core.config import settings
 
@@ -37,5 +38,6 @@ v1_router.include_router(engagement_router)
 v1_router.include_router(followups_router)
 v1_router.include_router(journey_router)
 v1_router.include_router(ml_router)
+v1_router.include_router(reports_router)
 v1_router.include_router(tasks_router)
 api_router.include_router(v1_router)

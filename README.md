@@ -18,6 +18,8 @@ Step 11 complete: AI Prediction APIs with baseline scoring, full endpoint surfac
 Step 12 complete: Decision Engine with next-action recommendations, decision logs, migration, and tests.
 Step 13 complete: Tasks and Follow-ups with task CRUD, follow-up scheduling/update APIs, migration, and tests.
 Step 14 complete: Analytics with dashboard summary, funnel metrics, channel performance APIs, and tests.
+Step 15 complete: Reports with campaign performance, workload, and pipeline reporting APIs, and tests.
+Step 16 complete: Integration Testing with end-to-end cross-module flow coverage.
 
 ## Tech Stack
 
@@ -192,7 +194,7 @@ backend/
 12. Decision Engine (done)
 13. Tasks / Follow-ups (done)
 14. Analytics (done)
-15. Reports
-16. Integration Testing
+15. Reports (done)
+16. Integration Testing (done)
 17. Performance Optimization
 

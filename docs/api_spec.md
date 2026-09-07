@@ -140,10 +140,12 @@ Status: Implemented task CRUD and follow-up list/create/update endpoints.
 
 ## Analytics and Reports
 
-Status: Implemented analytics overview/funnel/channel endpoints. Reports pending.
+Status: Implemented analytics overview/funnel/channel endpoints and reporting endpoints.
 
 1. `GET /api/analytics/*`
-2. `GET /api/reports/*`
+2. `GET /api/reports/campaign-performance`
+3. `GET /api/reports/workload`
+4. `GET /api/reports/pipeline`
 
 ## Data Management
 
