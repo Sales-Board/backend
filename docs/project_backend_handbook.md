@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:29:32 UTC
+Generated: 2026-09-07 21:35:17 UTC
 
 ## 1. Executive Summary
 
@@ -464,7 +464,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/customers
 - Summary: Create Customer
 - Tags: customers
-- Request: body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, email, external_customer_id, ...
+- Request: body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, external_customer_id
 - Responses: 201: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### GET /api/customers/{customer_id}
@@ -476,7 +476,7 @@ Total API paths in OpenAPI: 62
 ### PATCH /api/customers/{customer_id}
 - Summary: Update Customer
 - Tags: customers
-- Request: params=customer_id(path) ; body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, email, external_customer_id, ...
+- Request: params=customer_id(path) ; body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, external_customer_id
 - Responses: 200: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### DELETE /api/customers/{customer_id}
@@ -705,25 +705,25 @@ Total API paths in OpenAPI: 62
 - Summary: List Products
 - Tags: products
 - Request: params=skip(query), limit(query)
-- Responses: 200: items[CRM_Product_Code], items[CRM_Product_Name], items[Excel_Fields], items[category], items[created_at], items[id], items[is_active], items[updated_at] | 422: detail
+- Responses: 200: items[CRM_Product_Code], items[CRM_Product_Name], items[Excel_Fields], items[created_at], items[id], items[updated_at] | 422: detail
 
 ### POST /api/products
 - Summary: Create Product
 - Tags: products
-- Request: body=category, code, is_active, name
-- Responses: 201: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
+- Request: body=code, name
+- Responses: 201: CRM_Product_Code, CRM_Product_Name, Excel_Fields, created_at, id, updated_at | 422: detail
 
 ### GET /api/products/{product_id}
 - Summary: Get Product
 - Tags: products
 - Request: params=product_id(path)
-- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
+- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, created_at, id, updated_at | 422: detail
 
 ### PATCH /api/products/{product_id}
 - Summary: Update Product
 - Tags: products
-- Request: params=product_id(path) ; body=category, code, is_active, name
-- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, category, created_at, id, is_active, updated_at | 422: detail
+- Request: params=product_id(path) ; body=code, name
+- Responses: 200: CRM_Product_Code, CRM_Product_Name, Excel_Fields, created_at, id, updated_at | 422: detail
 
 ### DELETE /api/products/{product_id}
 - Summary: Delete Product

@@ -13,8 +13,6 @@ class Customer(Base):
     external_customer_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
     crm_gender: Mapped[str | None] = mapped_column(String(32), nullable=True)
     crm_age_band: Mapped[str | None] = mapped_column(String(32), nullable=True)
     crm_income_band: Mapped[str | None] = mapped_column(String(32), nullable=True)

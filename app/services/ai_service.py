@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.repositories.ai_repository import AIRepository
+from app.core.excel_contract import LEAKAGE_COLUMNS, source_features
 from app.schemas.ai import AILeadAnalysisResponse, AIPredictionLogRead, AIPredictionRequest, AIPredictionResponse
 
 
@@ -24,7 +25,7 @@ class AIService:
             lead_id=lead_id,
             customer_id=customer_id,
             prediction_type=prediction_type,
-            model_name="lead_conversion_baseline",
+            model_name="excel_field_baseline",
             score=score,
             label=label,
             rationale=rationale,
@@ -91,61 +92,84 @@ class AIService:
 
     def _build_features(self, db: Session, lead_id: int | None) -> dict:
         if lead_id is None:
-            return {"source_channel": "unknown", "priority": "medium", "call_count": 0, "engagement_count": 0}
+            return {"excel_fields": {}, "feature_columns": [], "prediction_point": datetime.now(UTC).isoformat()}
 
         lead = self.repository.get_lead(db, lead_id)
         if lead is None:
-            return {"source_channel": "unknown", "priority": "medium", "call_count": 0, "engagement_count": 0}
+            return {"excel_fields": {}, "feature_columns": [], "prediction_point": datetime.now(UTC).isoformat()}
 
+        fields = source_features(lead.excel_fields)
+        customer = self.repository.get_customer(db, lead.customer_id)
+        if customer is not None:
+            customer_fields = source_features(customer.excel_fields)
+            for column, value in customer_fields.items():
+                fields.setdefault(column, value)
         return {
-            "source_channel": lead.source_channel or "unknown",
-            "priority": lead.priority or "medium",
-            "call_count": self.repository.lead_call_count(db, lead_id),
-            "engagement_count": self.repository.lead_engagement_count(db, lead_id),
+            "excel_fields": fields,
+            "feature_columns": sorted(fields),
+            "prediction_point": datetime.now(UTC).isoformat(),
+            "excluded_columns": sorted(LEAKAGE_COLUMNS),
         }
 
     def _score_from_baseline(self, features: dict) -> float:
-        artifact = self._load_latest_artifact()
-        base = float(artifact.get("global_positive_rate", 0.3))
-        channel_rate = artifact.get("channel_positive_rate", {})
-        priority_rate = artifact.get("priority_positive_rate", {})
+        fields = features.get("excel_fields", {})
+        connect_rate = self._number(fields.get("CDR_Connect_Rate"))
+        page_views = self._number(fields.get("Page_Views"))
+        message_engagement = self._number(fields.get("MSG_Engaged"))
+        web_tracked = self._number(fields.get("WEB_Tracked"))
+        event_activity = sum(self._number(value) for key, value in fields.items() if key.startswith("ev_"))
 
-        channel = features.get("source_channel", "unknown")
-        priority = features.get("priority", "medium")
-        channel_score = float(channel_rate.get(channel, base))
-        priority_score = float(priority_rate.get(priority, base))
-
-        behavior_boost = min(0.15, 0.02 * int(features.get("call_count", 0)) + 0.01 * int(features.get("engagement_count", 0)))
-        score = (0.45 * base) + (0.25 * channel_score) + (0.25 * priority_score) + behavior_boost
+        score = connect_rate * 0.35
+        score += min(page_views / 30.0, 1.0) * 0.25
+        score += min(message_engagement / 20.0, 1.0) * 0.15
+        score += min(web_tracked / 10.0, 1.0) * 0.10
+        score += min(event_activity / 20.0, 1.0) * 0.15
         return max(0.0, min(1.0, score))
 
     def _shape_prediction(self, prediction_type: str, score: float, features: dict) -> tuple[str, str, dict]:
         if prediction_type == "validity":
             label = "valid" if score >= 0.35 else "suspect"
-            rationale = "Lead profile consistency and engagement signals were evaluated."
+            rationale = "Customer validity was scored from pre-outcome Excel fields; LABEL_Customer_Validity was excluded as the target."
         elif prediction_type == "intent":
             label = "high_intent" if score >= 0.6 else "medium_intent" if score >= 0.35 else "low_intent"
-            rationale = "Intent estimated from engagement, call activity, source channel, and priority."
+            rationale = "Intent estimated from canonical CRM, CDR, MSG, WEB, and ev_ fields available at prediction time."
         elif prediction_type == "conversion":
             label = "likely_convert" if score >= 0.55 else "needs_nurture"
-            rationale = "Conversion probability estimated using baseline conversion patterns."
+            rationale = "Conversion estimated from pre-outcome Excel fields; outcome and label columns were excluded from inputs."
         elif prediction_type == "product-recommendation":
-            label = "protection_plan" if features.get("priority") == "high" else "wealth_plan"
-            rationale = "Product recommendation based on lead urgency profile and baseline behavior."
+            fields = features.get("excel_fields", {})
+            label = "product_match" if fields.get("WEB_Plan_Type") or fields.get("CRM_Product_Code") or fields.get("CRM_Product_Name") else "product_unavailable"
+            rationale = "Product recommendation uses only CRM product and WEB product fields from Excel."
         elif prediction_type == "lead-score":
             label = "A" if score >= 0.7 else "B" if score >= 0.45 else "C"
-            rationale = "Composite lead score based on historical training artifact and activity signals."
+            rationale = "Derived lead score calculated only from canonical pre-outcome CRM, CDR, MSG, WEB, and ev_ fields."
         elif prediction_type == "segment":
             label = "hot" if score >= 0.65 else "warm" if score >= 0.35 else "cold"
-            rationale = "Segmentation computed from predicted conversion tendency and engagement depth."
+            rationale = "Segmentation computed from canonical customer, engagement, call, website, and event fields."
         elif prediction_type == "next-best-action":
             label = "call_now" if score >= 0.6 else "send_nurture_message"
-            rationale = "Suggested action generated from intent/conversion score bands."
+            rationale = "Suggested action generated from Excel-derived engagement and conversion signals."
         else:
             label = "unknown"
             rationale = "Prediction type not recognized."
 
-        return label, rationale, {"features": features, "score_band": label}
+        target_column = {
+            "validity": "LABEL_Customer_Validity",
+            "conversion": "Label_Source_Lead_Status",
+        }.get(prediction_type)
+        return label, rationale, {
+            "features": features,
+            "score_band": label,
+            "target_column": target_column,
+            "derived_output": True,
+        }
+
+    @staticmethod
+    def _number(value: object) -> float:
+        try:
+            return float(value or 0)
+        except (TypeError, ValueError):
+            return 0.0
 
     @staticmethod
     def _load_latest_artifact() -> dict:

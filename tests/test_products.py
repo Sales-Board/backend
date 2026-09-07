@@ -2,8 +2,6 @@ def test_create_and_get_product(client) -> None:
     payload = {
         "code": "PROD-TERM-001",
         "name": "Term Life Plan",
-        "category": "Protection",
-        "is_active": True,
     }
 
     create_response = client.post("/api/products", json=payload)
@@ -19,7 +17,7 @@ def test_create_and_get_product(client) -> None:
 def test_list_update_and_delete_product(client) -> None:
     create_response = client.post(
         "/api/products",
-        json={"code": "PROD-ULIP-001", "name": "ULIP Growth", "category": "Investment", "is_active": True},
+        json={"code": "PROD-ULIP-001", "name": "ULIP Growth"},
     )
     product_id = create_response.json()["id"]
 
@@ -29,12 +27,11 @@ def test_list_update_and_delete_product(client) -> None:
 
     update_response = client.patch(
         f"/api/products/{product_id}",
-        json={"name": "ULIP Growth Plus", "is_active": False},
+        json={"name": "ULIP Growth Plus"},
     )
     assert update_response.status_code == 200
     updated = update_response.json()
     assert updated["CRM_Product_Name"] == "ULIP Growth Plus"
-    assert updated["is_active"] is False
 
     delete_response = client.delete(f"/api/products/{product_id}")
     assert delete_response.status_code == 204
@@ -44,7 +41,7 @@ def test_list_update_and_delete_product(client) -> None:
 
 
 def test_unique_product_code_conflict(client) -> None:
-    payload = {"code": "PROD-DUP-001", "name": "Duplicate Product", "category": "Test", "is_active": True}
+    payload = {"code": "PROD-DUP-001", "name": "Duplicate Product"}
 
     first = client.post("/api/products", json=payload)
     assert first.status_code == 201

@@ -162,6 +162,10 @@ Every data-bearing response section also returns `Excel_Fields` when sourced fro
 
 Fields with no equivalent Excel column remain internal operational fields, such as database `id`, `status` workflow values, `metric_type`, and timestamps. They are not falsely renamed to unrelated Excel columns.
 
+Customer responses contain only the listed Excel customer fields plus system identifiers/timestamps. Product responses contain only the listed product fields plus system identifiers/timestamps. Customer email/phone and product category/is_active are not part of this source contract and are not stored by the current schema.
+
+AI responses mark calculated values with `derived_output: true`, record the exact `target_column`, and include the prediction-time feature list. Leakage columns are excluded from model inputs.
+
 ## Data Processing Flow
 
 1. Data import API records import jobs and metadata.

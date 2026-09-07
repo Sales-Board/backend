@@ -5,8 +5,6 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class CustomerBase(BaseModel):
-    email: str | None = Field(default=None, max_length=255)
-    phone: str | None = Field(default=None, max_length=32)
 
     crm_gender: str | None = Field(
         default=None,

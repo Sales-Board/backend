@@ -17,6 +17,7 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from app.db.database import get_session_factory
+from app.core.excel_contract import DATASET_PATH, validate_contract
 from app.models.call import Call
 from app.models.campaign import Campaign
 from app.models.customer import Customer
@@ -29,9 +30,6 @@ from app.models.lead_timeline_event import LeadTimelineEvent
 from app.models.product import Product
 from app.models.task import Task
 from app.models.website_event import WebsiteEvent
-
-DATASET_PATH = ROOT_DIR / "sample_data.xlsx"
-
 
 def _slug(value: str, max_len: int = 40) -> str:
     normalized = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
@@ -120,15 +118,19 @@ def _normalize_status(row: dict[str, object]) -> str:
 
 
 def _compute_lead_score(row: dict[str, object]) -> float:
-    validity = _as_float(row.get("LABEL_Customer_Validity"), default=1.0)
     connect_rate = _as_float(row.get("CDR_Connect_Rate"), default=0.0)
     page_views = _as_int(row.get("Page_Views"), default=0)
     msg_engaged = _as_int(row.get("MSG_Engaged"), default=0)
+    web_tracked = _as_int(row.get("WEB_Tracked"), default=0)
+    contacts = _as_int(row.get("CRM_Contact_Count"), default=0)
+    event_count = sum(_as_int(row.get(column), default=0) for column in row if str(column).startswith("ev_"))
 
-    score = (max(1.0, min(validity, 3.0)) / 3.0) * 40.0
-    score += max(0.0, min(connect_rate, 1.0)) * 30.0
+    score = max(0.0, min(connect_rate, 1.0)) * 35.0
     score += min(page_views, 30) * 0.8
     score += min(msg_engaged, 20) * 0.6
+    score += min(web_tracked, 10) * 1.5
+    score += min(contacts, 10) * 1.0
+    score += min(event_count, 20) * 0.5
     return round(min(score, 100.0), 2)
 
 
@@ -251,6 +253,9 @@ def main() -> None:
         raise RuntimeError("Database is not configured")
 
     dataset_path = Path(args.dataset_path)
+    missing_columns = validate_contract(dataset_path)
+    if missing_columns:
+        raise ValueError(f"Excel contract is incomplete; missing columns: {', '.join(missing_columns)}")
     columns, rows = _load_excel_rows(dataset_path)
 
     created = {
@@ -281,14 +286,11 @@ def main() -> None:
 
             product_code = _str(row.get("CRM_Product_Code"), 64) or f"PRD-{_slug(_str(row.get('CRM_Product_Name')) or customer_external_id, 50)}"
             product_name = _str(row.get("CRM_Product_Name"), 150) or _str(row.get("WEB_Plan_Type"), 150) or "Unknown Product"
-            product_category = _str(row.get("WEB_Plan_Variant"), 100) or _str(row.get("CRM_Lead_Type"), 100) or None
             product = db.scalar(select(Product).where(Product.code == product_code))
             if product is None:
                 product = Product(
                     code=product_code,
                     name=product_name,
-                    category=product_category,
-                    is_active=True,
                     excel_fields=source_excel_fields,
                 )
                 db.add(product)

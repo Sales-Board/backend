@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.repositories.ml_repository import MLRepository
+from app.core.excel_contract import LEAKAGE_COLUMNS, PRE_OUTCOME_FEATURE_COLUMNS
 from app.schemas.ml import MLModelSummary, MLTrainingJobRead, MLTrainRequest
 
 
@@ -55,44 +56,18 @@ class MLService:
 
     @staticmethod
     def _build_baseline_artifact(model_name: str, rows: list[dict]) -> dict:
-        positive_status = {"qualified", "converted"}
+        positive_status = {"qualified", "converted", "interested", "follow up", "follow_up"}
         total = len(rows)
-        positives = sum(1 for row in rows if row["status"] in positive_status)
+        positives = sum(1 for row in rows if str(row.get("target") or "").lower() in positive_status)
         global_rate = positives / total if total else 0.0
-
-        channel_counts: dict[str, list[int]] = {}
-        priority_counts: dict[str, list[int]] = {}
-
-        for row in rows:
-            target = 1 if row["status"] in positive_status else 0
-
-            ch = row["source_channel"]
-            channel_counts.setdefault(ch, [0, 0])
-            channel_counts[ch][0] += 1
-            channel_counts[ch][1] += target
-
-            pr = row["priority"]
-            priority_counts.setdefault(pr, [0, 0])
-            priority_counts[pr][0] += 1
-            priority_counts[pr][1] += target
-
-        channel_prob = {
-            key: (value[1] / value[0] if value[0] else global_rate)
-            for key, value in channel_counts.items()
-        }
-        priority_prob = {
-            key: (value[1] / value[0] if value[0] else global_rate)
-            for key, value in priority_counts.items()
-        }
 
         return {
             "model_name": model_name,
             "created_at": datetime.now(UTC).isoformat(),
-            "target": "lead_status_in_{qualified,converted}",
-            "features": ["source_channel", "priority", "call_count", "engagement_count"],
+            "target": "Label_Source_Lead_Status",
+            "features": list(PRE_OUTCOME_FEATURE_COLUMNS),
+            "excluded_leakage_columns": sorted(LEAKAGE_COLUMNS),
             "global_positive_rate": global_rate,
-            "channel_positive_rate": channel_prob,
-            "priority_positive_rate": priority_prob,
             "metrics": {
                 "training_rows": total,
                 "positive_rows": positives,

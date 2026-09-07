@@ -11,8 +11,6 @@ class ProductBase(BaseModel):
         validation_alias=AliasChoices("name", "CRM_Product_Name"),
         serialization_alias="CRM_Product_Name",
     )
-    category: str | None = Field(default=None, max_length=100)
-    is_active: bool = True
 
 
 class ProductCreate(ProductBase):
@@ -27,8 +25,6 @@ class ProductCreate(ProductBase):
 class ProductUpdate(BaseModel):
     code: str | None = Field(default=None, min_length=1, max_length=64)
     name: str | None = Field(default=None, min_length=1, max_length=150)
-    category: str | None = Field(default=None, max_length=100)
-    is_active: bool | None = None
 
 
 class ProductRead(ProductBase):
