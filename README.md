@@ -81,8 +81,10 @@ Optional combined DB bootstrap helper (migrations + DB check + quick tests):
 Manual sample-data preload:
 
 ```bash
-./.venv/bin/python ./scripts/preload_sample_data.py
+./.venv/bin/python ./scripts/preload_sample_data.py --reset
 ```
+
+The preload command ingests real records from `sample_data/policy_indexed.json` and repopulates core domain tables.
 
 Full live API smoke check (requires running server):
 

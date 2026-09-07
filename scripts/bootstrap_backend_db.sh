@@ -24,7 +24,7 @@ with psycopg.connect(settings.database_url.replace('+psycopg', '')) as conn:
 PY
 
 echo "[3/5] Preloading sample data"
-./.venv/bin/python ./scripts/preload_sample_data.py
+./.venv/bin/python ./scripts/preload_sample_data.py --reset
 
 echo "[4/5] Running fast sanity tests"
 ./.venv/bin/pytest -q tests/test_health.py tests/test_customers.py --disable-warnings --maxfail=1

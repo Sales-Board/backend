@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
+import json
+import re
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
@@ -23,196 +27,84 @@ from app.models.product import Product
 from app.models.task import Task
 from app.models.website_event import WebsiteEvent
 
+DATASET_PATH = ROOT_DIR.parent / "sample_data" / "policy_indexed.json"
 
-def _get_or_create_customer(db, external_customer_id: str, first_name: str) -> Customer:
-    row = db.scalar(select(Customer).where(Customer.external_customer_id == external_customer_id))
-    if row is not None:
-        return row
-    row = Customer(external_customer_id=external_customer_id, first_name=first_name)
-    db.add(row)
+
+def _slug(value: str, max_len: int = 40) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return normalized[:max_len] or "x"
+
+
+def _channel_and_status(doc_type: str) -> tuple[str, str, str]:
+    mapping = {
+        "policy_document": ("website", "converted", "high"),
+        "brochure": ("email", "qualified", "medium"),
+        "cis": ("whatsapp", "new", "medium"),
+    }
+    return mapping.get(doc_type, ("website", "new", "low"))
+
+
+def _reset_domain_tables(db: Session) -> None:
+    from app.models.ai_prediction import AIPrediction
+    from app.models.decision_recommendation import DecisionRecommendation
+
+    for model in [
+        Followup,
+        Task,
+        DecisionRecommendation,
+        AIPrediction,
+        Call,
+        WebsiteEvent,
+        EngagementEvent,
+        Lead,
+        Campaign,
+        Product,
+        Customer,
+    ]:
+        db.query(model).delete()
     db.flush()
-    return row
 
 
-def _get_or_create_campaign(db, code: str, name: str, channel: str) -> Campaign:
-    row = db.scalar(select(Campaign).where(Campaign.code == code))
-    if row is not None:
-        return row
-    row = Campaign(code=code, name=name, channel=channel, status="active")
-    db.add(row)
+def _remove_smoke_records(db: Session) -> None:
+    db.query(Customer).filter(Customer.external_customer_id.like("SMOKE-%")).delete(synchronize_session=False)
+    db.query(Customer).filter(Customer.external_customer_id.like("SAMPLE-%")).delete(synchronize_session=False)
+    db.query(Campaign).filter(Campaign.code.like("SMOKE-%")).delete(synchronize_session=False)
+    db.query(Campaign).filter(Campaign.code.like("SAMPLE-%")).delete(synchronize_session=False)
+    db.query(Product).filter(Product.code.like("SMOKE-%")).delete(synchronize_session=False)
+    db.query(Product).filter(Product.code.like("SAMPLE-%")).delete(synchronize_session=False)
     db.flush()
-    return row
 
 
-def _get_or_create_product(db, code: str, name: str) -> Product:
-    row = db.scalar(select(Product).where(Product.code == code))
-    if row is not None:
-        return row
-    row = Product(code=code, name=name, category="insurance", is_active=True)
-    db.add(row)
-    db.flush()
-    return row
+def _load_dataset() -> dict:
+    if not DATASET_PATH.exists():
+        raise FileNotFoundError(f"Sample dataset not found at: {DATASET_PATH}")
+    return json.loads(DATASET_PATH.read_text(encoding="utf-8"))
 
 
-def _get_or_create_lead(db, customer_id: int, campaign_id: int, source_channel: str, status_value: str, priority: str) -> Lead:
-    row = db.scalar(
-        select(Lead).where(
-            Lead.customer_id == customer_id,
-            Lead.campaign_id == campaign_id,
-            Lead.source_channel == source_channel,
-            Lead.status == status_value,
-        )
-    )
-    if row is not None:
-        return row
-    row = Lead(
-        customer_id=customer_id,
-        campaign_id=campaign_id,
-        source_channel=source_channel,
-        status=status_value,
-        priority=priority,
-    )
-    db.add(row)
-    db.flush()
-    return row
-
-
-def _get_or_create_task(db, lead_id: int, customer_id: int, title: str, status_value: str, priority: str) -> Task:
-    row = db.scalar(select(Task).where(Task.lead_id == lead_id, Task.title == title))
-    if row is not None:
-        return row
-    row = Task(
-        lead_id=lead_id,
-        customer_id=customer_id,
-        title=title,
-        description="Seeded sample task",
-        status=status_value,
-        priority=priority,
-        due_at=datetime.now(UTC) + timedelta(days=2),
-    )
-    db.add(row)
-    db.flush()
-    return row
-
-
-def _get_or_create_followup(db, task_id: int, lead_id: int, customer_id: int, channel: str, status_value: str) -> Followup:
-    row = db.scalar(select(Followup).where(Followup.task_id == task_id, Followup.channel == channel))
-    if row is not None:
-        return row
-    row = Followup(
-        task_id=task_id,
-        lead_id=lead_id,
-        customer_id=customer_id,
-        channel=channel,
-        status=status_value,
-        notes="Seeded follow-up",
-        scheduled_at=datetime.now(UTC) + timedelta(days=1),
-        completed_at=datetime.now(UTC) if status_value == "completed" else None,
-    )
-    db.add(row)
-    db.flush()
-    return row
-
-
-def _get_or_create_call(db, lead_id: int, customer_id: int, phone_number: str, status_value: str) -> Call:
-    row = db.scalar(select(Call).where(Call.lead_id == lead_id, Call.phone_number == phone_number))
-    if row is not None:
-        return row
-    started = datetime.now(UTC) - timedelta(minutes=5)
-    ended = datetime.now(UTC) - timedelta(minutes=2)
-    row = Call(
-        lead_id=lead_id,
-        customer_id=customer_id,
-        direction="outbound",
-        status=status_value,
-        phone_number=phone_number,
-        started_at=started,
-        ended_at=ended,
-        duration_seconds=max(0, int((ended - started).total_seconds())),
-        notes="Seeded call",
-    )
-    db.add(row)
-    db.flush()
-    return row
-
-
-def _seed_engagement_events(db, lead_id: int, customer_id: int, campaign_id: int) -> int:
-    existing = db.scalar(select(EngagementEvent).where(EngagementEvent.lead_id == lead_id))
-    if existing is not None:
-        return 0
-
-    rows = [
-        EngagementEvent(
-            lead_id=lead_id,
-            customer_id=customer_id,
-            campaign_id=campaign_id,
-            channel="email",
-            metric_type="sent",
-            metric_value=2,
-        ),
-        EngagementEvent(
-            lead_id=lead_id,
-            customer_id=customer_id,
-            campaign_id=campaign_id,
-            channel="whatsapp",
-            metric_type="clicked",
-            metric_value=1,
-        ),
-        EngagementEvent(
-            lead_id=lead_id,
-            customer_id=customer_id,
-            campaign_id=campaign_id,
-            channel="website",
-            metric_type="viewed",
-            metric_value=3,
-        ),
-    ]
-    db.add_all(rows)
-    db.flush()
-    return len(rows)
-
-
-def _seed_website_events(db, lead_id: int, customer_id: int) -> int:
-    existing = db.scalar(select(WebsiteEvent).where(WebsiteEvent.lead_id == lead_id))
-    if existing is not None:
-        return 0
-
-    rows = [
-        WebsiteEvent(
-            lead_id=lead_id,
-            customer_id=customer_id,
-            event_name="page_view",
-            step_name="landing",
-            step_number=1,
-            device_type="mobile",
-            is_repeat_visitor=False,
-            event_payload={"path": "/"},
-        ),
-        WebsiteEvent(
-            lead_id=lead_id,
-            customer_id=customer_id,
-            event_name="cta_click",
-            step_name="quote_start",
-            step_number=2,
-            device_type="mobile",
-            is_repeat_visitor=True,
-            event_payload={"button": "start_quote"},
-        ),
-    ]
-    db.add_all(rows)
-    db.flush()
-    return len(rows)
+def _count(db: Session, model, *filters) -> int:
+    stmt = select(func.count()).select_from(model)
+    for rule in filters:
+        stmt = stmt.where(rule)
+    return int(db.scalar(stmt) or 0)
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Load real sample_data records into PostgreSQL")
+    parser.add_argument("--reset", action="store_true", help="Delete existing domain rows before load")
+    parser.add_argument("--keep-smoke", action="store_true", help="Do not remove existing SMOKE/SAMPLE rows")
+    args = parser.parse_args()
+
     session_factory = get_session_factory()
     if session_factory is None:
         raise RuntimeError("Database is not configured")
 
+    dataset = _load_dataset()
+    groups: dict = dataset.get("groups", {})
+
     created = {
-        "customers": 0,
-        "campaigns": 0,
         "products": 0,
+        "campaigns": 0,
+        "customers": 0,
         "leads": 0,
         "tasks": 0,
         "followups": 0,
@@ -222,63 +114,194 @@ def main() -> None:
     }
 
     with session_factory() as db:
-        c1 = _get_or_create_customer(db, "SAMPLE-CUST-001", "Asha")
-        c2 = _get_or_create_customer(db, "SAMPLE-CUST-002", "Ravi")
-        c3 = _get_or_create_customer(db, "SAMPLE-CUST-003", "Neha")
+        if args.reset:
+            _reset_domain_tables(db)
+        elif not args.keep_smoke:
+            _remove_smoke_records(db)
 
-        camp_email = _get_or_create_campaign(db, "SAMPLE-CMP-EMAIL", "Email Growth", "email")
-        camp_web = _get_or_create_campaign(db, "SAMPLE-CMP-WEB", "Website Conversions", "website")
+        for group_key, group_data in groups.items():
+            product_name = str(group_data.get("product_name") or group_key.replace("_", " ")).strip()
+            plan_categories = group_data.get("plan_categories") or []
+            files = group_data.get("files") or []
 
-        _get_or_create_product(db, "SAMPLE-PROD-TERM", "Term Protect")
-        _get_or_create_product(db, "SAMPLE-PROD-WEALTH", "Wealth Builder")
+            product_code = f"PRD-{_slug(group_key, 50)}"[:64]
+            product = db.scalar(select(Product).where(Product.code == product_code))
+            if product is None:
+                product = Product(
+                    code=product_code,
+                    name=product_name[:150],
+                    category=", ".join(plan_categories)[:100] if plan_categories else None,
+                    is_active=True,
+                )
+                db.add(product)
+                db.flush()
+                created["products"] += 1
 
-        leads = [
-            _get_or_create_lead(db, c1.id, camp_email.id, "email", "new", "medium"),
-            _get_or_create_lead(db, c2.id, camp_email.id, "email", "qualified", "high"),
-            _get_or_create_lead(db, c3.id, camp_web.id, "website", "converted", "high"),
-            _get_or_create_lead(db, c1.id, camp_web.id, "website", "lost", "low"),
-        ]
+            campaign_code = f"CMP-{_slug(group_key, 50)}"[:64]
+            campaign = db.scalar(select(Campaign).where(Campaign.code == campaign_code))
+            if campaign is None:
+                campaign = Campaign(
+                    code=campaign_code,
+                    name=product_name[:150],
+                    channel="website",
+                    status="active",
+                )
+                db.add(campaign)
+                db.flush()
+                created["campaigns"] += 1
 
-        t1 = _get_or_create_task(db, leads[0].id, c1.id, "Call back prospect", "open", "high")
-        t2 = _get_or_create_task(db, leads[1].id, c2.id, "Share brochure", "in_progress", "medium")
+            for file_data in files:
+                doc_uid = str(file_data.get("doc_uid") or file_data.get("pdf_sha256") or "").strip()
+                if not doc_uid:
+                    continue
+                external_id = doc_uid[:64]
 
-        _get_or_create_followup(db, t1.id, leads[0].id, c1.id, "call", "pending")
-        _get_or_create_followup(db, t2.id, leads[1].id, c2.id, "email", "completed")
+                customer = db.scalar(select(Customer).where(Customer.external_customer_id == external_id))
+                if customer is None:
+                    customer = Customer(
+                        external_customer_id=external_id,
+                        first_name=str(file_data.get("title") or "Doc")[:100],
+                        last_name=str(file_data.get("doc_type") or "Record")[:100],
+                    )
+                    db.add(customer)
+                    db.flush()
+                    created["customers"] += 1
 
-        _get_or_create_call(db, leads[0].id, c1.id, "+910000001001", "completed")
-        _get_or_create_call(db, leads[2].id, c3.id, "+910000001003", "completed")
+                doc_type = str(file_data.get("doc_type") or "unknown").strip().lower()
+                source_channel, status_value, priority = _channel_and_status(doc_type)
 
-        created["engagement_events"] += _seed_engagement_events(db, leads[0].id, c1.id, camp_email.id)
-        created["engagement_events"] += _seed_engagement_events(db, leads[2].id, c3.id, camp_web.id)
-        created["website_events"] += _seed_website_events(db, leads[0].id, c1.id)
-        created["website_events"] += _seed_website_events(db, leads[2].id, c3.id)
+                lead = db.scalar(
+                    select(Lead).where(
+                        Lead.customer_id == customer.id,
+                        Lead.campaign_id == campaign.id,
+                        Lead.source_channel == source_channel,
+                        Lead.source_medium == doc_type,
+                    )
+                )
+                if lead is None:
+                    lead = Lead(
+                        customer_id=customer.id,
+                        campaign_id=campaign.id,
+                        source_channel=source_channel,
+                        source_medium=doc_type,
+                        status=status_value,
+                        priority=priority,
+                    )
+                    db.add(lead)
+                    db.flush()
+                    created["leads"] += 1
 
-        # Recompute counts quickly by checking sample identifiers.
-        created["customers"] = int(
-            db.scalar(select(func.count()).select_from(Customer).where(Customer.external_customer_id.like("SAMPLE-CUST-%")))
-            or 0
-        )
-        created["campaigns"] = int(
-            db.scalar(select(func.count()).select_from(Campaign).where(Campaign.code.like("SAMPLE-CMP-%"))) or 0
-        )
-        created["products"] = int(
-            db.scalar(select(func.count()).select_from(Product).where(Product.code.like("SAMPLE-PROD-%"))) or 0
-        )
-        created["leads"] = len(leads)
-        created["tasks"] = int(
-            db.scalar(select(func.count()).select_from(Task).where(Task.title.in_(["Call back prospect", "Share brochure"])))
-            or 0
-        )
-        created["followups"] = int(
-            db.scalar(select(func.count()).select_from(Followup).where(Followup.notes == "Seeded follow-up")) or 0
-        )
-        created["calls"] = int(db.scalar(select(func.count()).select_from(Call).where(Call.notes == "Seeded call")) or 0)
+                existing_event = db.scalar(select(EngagementEvent.id).where(EngagementEvent.lead_id == lead.id))
+                if existing_event is None:
+                    page_count = int(file_data.get("page_count") or 0)
+                    db.add(
+                        EngagementEvent(
+                            lead_id=lead.id,
+                            customer_id=customer.id,
+                            campaign_id=campaign.id,
+                            channel=source_channel,
+                            metric_type="viewed",
+                            metric_value=max(1, page_count),
+                            event_payload={
+                                "doc_type": doc_type,
+                                "filename": file_data.get("filename"),
+                                "display_ref": file_data.get("display_ref"),
+                                "uin": file_data.get("uin") or [],
+                            },
+                        )
+                    )
+                    created["engagement_events"] += 1
+
+                existing_web = db.scalar(select(WebsiteEvent.id).where(WebsiteEvent.lead_id == lead.id))
+                if existing_web is None:
+                    db.add(
+                        WebsiteEvent(
+                            lead_id=lead.id,
+                            customer_id=customer.id,
+                            event_name="document_indexed",
+                            step_name=doc_type[:100],
+                            step_number=1,
+                            device_type="web",
+                            is_repeat_visitor=False,
+                            event_payload={"title": file_data.get("title"), "url": file_data.get("url")},
+                        )
+                    )
+                    created["website_events"] += 1
+
+                task_title = f"Review {str(file_data.get('title') or doc_type)[:120]}"
+                task = db.scalar(select(Task).where(Task.lead_id == lead.id, Task.title == task_title))
+                if task is None:
+                    due_at = datetime.now(UTC) + timedelta(days=3)
+                    task = Task(
+                        lead_id=lead.id,
+                        customer_id=customer.id,
+                        title=task_title,
+                        description=str(file_data.get("display_ref") or "Policy document review")[:1000],
+                        status="open" if doc_type != "policy_document" else "completed",
+                        priority=priority,
+                        due_at=due_at,
+                    )
+                    db.add(task)
+                    db.flush()
+                    created["tasks"] += 1
+
+                followup = db.scalar(select(Followup).where(Followup.task_id == task.id))
+                if followup is None:
+                    followup = Followup(
+                        task_id=task.id,
+                        lead_id=lead.id,
+                        customer_id=customer.id,
+                        channel="call" if doc_type == "policy_document" else "email",
+                        notes=str(file_data.get("display_ref") or "sample-data followup")[:1000],
+                        status="completed" if doc_type == "policy_document" else "pending",
+                        scheduled_at=datetime.now(UTC) + timedelta(days=1),
+                        completed_at=datetime.now(UTC) if doc_type == "policy_document" else None,
+                    )
+                    db.add(followup)
+                    created["followups"] += 1
+
+                if doc_type == "policy_document":
+                    call = db.scalar(select(Call).where(Call.lead_id == lead.id, Call.customer_id == customer.id))
+                    if call is None:
+                        started = datetime.now(UTC) - timedelta(minutes=8)
+                        ended = datetime.now(UTC) - timedelta(minutes=2)
+                        db.add(
+                            Call(
+                                lead_id=lead.id,
+                                customer_id=customer.id,
+                                direction="outbound",
+                                status="completed",
+                                phone_number=None,
+                                notes="Policy document consultation",
+                                started_at=started,
+                                ended_at=ended,
+                                duration_seconds=max(0, int((ended - started).total_seconds())),
+                            )
+                        )
+                        created["calls"] += 1
 
         db.commit()
 
-    print("sample-data-ready")
+        total_records = {
+            "products": _count(db, Product),
+            "campaigns": _count(db, Campaign),
+            "customers": _count(db, Customer),
+            "leads": _count(db, Lead),
+            "tasks": _count(db, Task),
+            "followups": _count(db, Followup),
+            "calls": _count(db, Call),
+            "engagement_events": _count(db, EngagementEvent),
+            "website_events": _count(db, WebsiteEvent),
+        }
+
+    print("real-sample-data-ready")
+    print(f"dataset_path: {DATASET_PATH}")
+    print("new_rows:")
     for key, value in created.items():
-        print(f"{key}: {value}")
+        print(f"  {key}: {value}")
+    print("total_rows:")
+    for key, value in total_records.items():
+        print(f"  {key}: {value}")
 
 
 if __name__ == "__main__":

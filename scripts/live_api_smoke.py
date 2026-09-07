@@ -2,11 +2,8 @@
 from __future__ import annotations
 
 import json
-import tempfile
-import time
 import urllib.error
 import urllib.request
-from pathlib import Path
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -43,124 +40,46 @@ def call(method: str, path: str, payload: dict | None = None, expect: tuple[int,
 
 
 def main() -> None:
-    ts = int(time.time())
-
     call("GET", "/health")
     call("GET", "/api/health")
     call("GET", "/api/dashboard")
 
-    customer = call(
-        "POST",
-        "/api/customers",
-        payload={"external_customer_id": f"SMOKE-CUST-{ts}", "first_name": "Smoke"},
-        expect=(201,),
-    )
-    customer_id = int(customer["id"])
+    customers = call("GET", "/api/customers")
+    products = call("GET", "/api/products")
+    campaigns = call("GET", "/api/campaigns")
+    leads = call("GET", "/api/leads")
+    tasks = call("GET", "/api/tasks")
+    followups = call("GET", "/api/followups")
+    calls = call("GET", "/api/calls")
 
-    product = call(
-        "POST",
-        "/api/products",
-        payload={"code": f"SMOKE-PROD-{ts}", "name": "Smoke Product", "category": "insurance", "status": "active"},
-        expect=(201,),
-    )
-    product_id = int(product["id"])
+    if not customers or not products or not campaigns or not leads or not tasks:
+        print("Real dataset not loaded. Run ./scripts/preload_sample_data.py --reset first.")
+        raise SystemExit(1)
 
-    campaign = call(
-        "POST",
-        "/api/campaigns",
-        payload={"code": f"SMOKE-CMP-{ts}", "name": "Smoke Campaign", "channel": "email", "status": "active"},
-        expect=(201,),
-    )
-    campaign_id = int(campaign["id"])
+    customer_id = int(customers[0]["id"])
+    product_id = int(products[0]["id"])
+    campaign_id = int(campaigns[0]["id"])
+    lead_id = int(leads[0]["id"])
+    task_id = int(tasks[0]["id"])
+    call_id = int(calls[0]["id"]) if calls else None
 
-    lead = call(
-        "POST",
-        "/api/leads",
-        payload={
-            "customer_id": customer_id,
-            "campaign_id": campaign_id,
-            "source_channel": "email",
-            "status": "new",
-            "priority": "high",
-        },
-        expect=(201,),
-    )
-    lead_id = int(lead["id"])
-
-    task = call(
-        "POST",
-        "/api/tasks",
-        payload={
-            "lead_id": lead_id,
-            "customer_id": customer_id,
-            "title": "Smoke task",
-            "status": "open",
-            "priority": "high",
-        },
-        expect=(201,),
-    )
-    task_id = int(task["id"])
-
-    followup = call(
-        "POST",
-        "/api/followups",
-        payload={
-            "task_id": task_id,
-            "lead_id": lead_id,
-            "customer_id": customer_id,
-            "channel": "call",
-            "status": "pending",
-        },
-        expect=(201,),
-    )
-    followup_id = int(followup["id"])
-
-    call_entry = call(
-        "POST",
-        "/api/calls",
-        payload={
-            "lead_id": lead_id,
-            "customer_id": customer_id,
-            "direction": "outbound",
-            "status": "scheduled",
-            "phone_number": "+910000009999",
-        },
-        expect=(201,),
-    )
-    call_id = int(call_entry["id"])
-
-    call("GET", "/api/customers")
     call("GET", f"/api/customers/{customer_id}")
-    call("PATCH", f"/api/customers/{customer_id}", payload={"first_name": "SmokeUpdated"})
-
-    call("GET", "/api/products")
     call("GET", f"/api/products/{product_id}")
-    call("PATCH", f"/api/products/{product_id}", payload={"status": "inactive"})
-
-    call("GET", "/api/campaigns")
     call("GET", f"/api/campaigns/{campaign_id}")
-    call("PATCH", f"/api/campaigns/{campaign_id}", payload={"status": "paused"})
     call("GET", f"/api/campaigns/{campaign_id}/leads")
     call("GET", f"/api/campaigns/{campaign_id}/performance")
 
-    call("GET", "/api/leads")
     call("GET", f"/api/leads/{lead_id}")
-    call("PATCH", f"/api/leads/{lead_id}", payload={"status": "qualified"})
     call("GET", f"/api/leads/{lead_id}/journey")
     call("GET", f"/api/leads/{lead_id}/calls")
 
-    call("GET", "/api/tasks")
     call("GET", f"/api/tasks/{task_id}")
-    call("PATCH", f"/api/tasks/{task_id}", payload={"status": "in_progress"})
+    if followups:
+        followup_id = int(followups[0]["id"])
+        call("PATCH", f"/api/followups/{followup_id}", payload={"status": "completed"})
 
-    call("GET", "/api/followups")
-    call("PATCH", f"/api/followups/{followup_id}", payload={"status": "completed"})
-
-    call("GET", "/api/calls")
-    call("GET", f"/api/calls/{call_id}")
-    call("PATCH", f"/api/calls/{call_id}", payload={"notes": "smoke"})
-    call("POST", f"/api/calls/{call_id}/start", payload={})
-    call("POST", f"/api/calls/{call_id}/end", payload={})
+    if call_id is not None:
+        call("GET", f"/api/calls/{call_id}")
 
     call("GET", "/api/journey/website")
     call("GET", f"/api/journey/leads/{lead_id}")
@@ -170,7 +89,7 @@ def main() -> None:
     call("GET", "/api/engagement/email")
     call("GET", "/api/engagement/website")
 
-    train = call("POST", "/api/ml/train", payload={"model_name": "lead_conversion_baseline"}, expect=(201,))
+    train = call("POST", "/api/ml/train", payload={"model_name": "lead_conversion_real_data"}, expect=(201,))
     train_id = int(train["id"])
     call("GET", f"/api/ml/train/{train_id}")
     call("GET", "/api/ml/models")
@@ -202,16 +121,17 @@ def main() -> None:
     call("GET", "/api/reports/workload")
     call("GET", "/api/reports/pipeline")
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        csv_path = Path(tmp_dir) / "import_customers.csv"
-        csv_path.write_text("external_customer_id,first_name\nTMP-1,Temp\n,Missing\n", encoding="utf-8")
-        import_job = call(
-            "POST",
-            "/api/data/import",
-            payload={"source_path": str(csv_path), "dataset_name": "customers", "file_format": "csv"},
-            expect=(201,),
-        )
-        call("GET", f"/api/data/import/{int(import_job['id'])}")
+    import_job = call(
+        "POST",
+        "/api/data/import",
+        payload={
+            "source_path": "/home/pavan/Desktop/FInal_year/sample_data/policy_indexed.json",
+            "dataset_name": "policy_indexed",
+            "file_format": "json",
+        },
+        expect=(201,),
+    )
+    call("GET", f"/api/data/import/{int(import_job['id'])}")
 
     call("GET", "/api/data/quality")
     call("GET", "/api/data/validation")
