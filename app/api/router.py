@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.ai import router as ai_router
 from app.api.routes.campaigns import router as campaigns_router
 from app.api.routes.calls import router as calls_router
 from app.api.routes.customers import router as customers_router
@@ -20,6 +21,7 @@ v1_router.include_router(health_router)
 v1_router.include_router(customers_router)
 v1_router.include_router(leads_router)
 v1_router.include_router(products_router)
+v1_router.include_router(ai_router)
 v1_router.include_router(campaigns_router)
 v1_router.include_router(calls_router)
 v1_router.include_router(data_router)

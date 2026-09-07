@@ -94,6 +94,8 @@ Status: Implemented CRUD and call lifecycle endpoints.
 
 ## AI
 
+Status: Implemented all AI prediction endpoints with baseline artifact-backed scoring and prediction logs.
+
 1. `POST /api/ai/validity`
 2. `POST /api/ai/intent`
 3. `POST /api/ai/conversion`
