@@ -5,6 +5,7 @@ Modular FastAPI backend for a sales and lead intelligence platform where lead li
 ## Current Status
 
 Step 1 complete: project foundation, API bootstrap, health endpoint, and dataset/domain planning docs.
+Step 2 complete: PostgreSQL + SQLAlchemy + Alembic foundation with DB-aware health checks.
 
 ## Tech Stack
 
@@ -47,6 +48,31 @@ uvicorn app.main:app --reload
 GET /health
 ```
 
+Response:
+
+```json
+{
+	"status": "ok",
+	"database": "connected | unavailable | not_configured"
+}
+```
+
+## Database & Migrations
+
+1. Ensure PostgreSQL is running (local or Docker).
+2. Set `DATABASE_URL` in `.env`.
+3. Run migrations:
+
+```bash
+alembic upgrade head
+```
+
+Create a new migration after model changes:
+
+```bash
+alembic revision --autogenerate -m "describe_change"
+```
+
 ## Tests
 
 ```bash
@@ -84,7 +110,7 @@ backend/
 ## Roadmap (Incremental)
 
 1. Project Foundation (done)
-2. PostgreSQL + SQLAlchemy + Alembic
+2. PostgreSQL + SQLAlchemy + Alembic (done)
 3. Customer Domain
 4. Lead Domain
 5. Product Domain
