@@ -52,11 +52,55 @@ pip install -r requirements-ml.txt
 cp .env.example .env
 ```
 
-4. Start server:
+4. Start PostgreSQL on your machine and create database `lead_intelligence`.
+
+Quick Ubuntu setup helper (installs PostgreSQL, starts service, sets password, creates DB):
+
+```bash
+./scripts/setup_postgres_ubuntu.sh
+```
+
+5. Apply migrations:
+
+```bash
+alembic upgrade head
+```
+
+6. Start server:
 
 ```bash
 uvicorn app.main:app --reload
 ```
+
+Optional combined DB bootstrap helper (migrations + DB check + quick tests):
+
+```bash
+./scripts/bootstrap_backend_db.sh
+```
+
+## Run With Docker (API + PostgreSQL)
+
+1. Copy Docker env template:
+
+```bash
+cp .env.docker.example .env
+```
+
+2. Start services:
+
+```bash
+docker compose up -d --build
+```
+
+3. Run migrations in API container:
+
+```bash
+docker compose exec api alembic upgrade head
+```
+
+4. Open docs:
+
+- Swagger UI: http://localhost:8000/api/docs
 
 ## API Docs
 
@@ -80,8 +124,8 @@ Response:
 
 ## Database & Migrations
 
-1. Ensure PostgreSQL is running (local or Docker).
-2. Set `DATABASE_URL` in `.env`.
+1. Ensure PostgreSQL is running (local service or Docker container).
+2. Set `DATABASE_URL` in `.env` for your runtime mode.
 3. Run migrations:
 
 ```bash
