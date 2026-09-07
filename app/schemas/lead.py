@@ -8,21 +8,21 @@ class LeadBase(BaseModel):
     source_channel: str | None = Field(
         default=None,
         max_length=64,
-        validation_alias=AliasChoices("source_channel", "CRM_Channel"),
-        serialization_alias="CRM_Channel",
+        alias="CRM_Channel",
+        validation_alias=AliasChoices("CRM_Channel", "source_channel"),
     )
     source_medium: str | None = Field(
         default=None,
         max_length=64,
-        validation_alias=AliasChoices("source_medium", "CRM_Data_Medium"),
-        serialization_alias="CRM_Data_Medium",
+        alias="CRM_Data_Medium",
+        validation_alias=AliasChoices("CRM_Data_Medium", "source_medium"),
     )
     status: str = Field(
         default="new",
         min_length=1,
         max_length=32,
-        validation_alias=AliasChoices("status", "Label_Source_Lead_Status"),
-        serialization_alias="Label_Source_Lead_Status",
+        alias="Label_Source_Lead_Status",
+        validation_alias=AliasChoices("Label_Source_Lead_Status", "status"),
     )
     current_stage: str = Field(default="generated", min_length=1, max_length=32)
     current_section: str | None = Field(default="intake", max_length=64)

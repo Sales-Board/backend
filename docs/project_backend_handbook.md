@@ -1,6 +1,6 @@
 # Backend Project Handbook
 
-Generated: 2026-09-07 21:35:17 UTC
+Generated: 2026-09-07 21:38:42 UTC
 
 ## 1. Executive Summary
 
@@ -380,7 +380,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/calls
 - Summary: Create Call
 - Tags: calls
-- Request: body=customer_id, direction, lead_id, notes, phone_number, scheduled_at, status
+- Request: body=CDR_Call_Direction, CDR_Top_Call_Status, customer_id, lead_id, notes, phone_number, scheduled_at
 - Responses: 201: CDR_Avg_Talk_Sec, CDR_Call_Direction, CDR_Top_Call_Status, Excel_Fields, created_at, customer_id, ended_at, id, ... | 422: detail
 
 ### GET /api/calls/{call_id}
@@ -422,7 +422,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/campaigns
 - Summary: Create Campaign
 - Tags: campaigns
-- Request: body=channel, code, end_date, name, start_date, status
+- Request: body=CRM_UTM_Campaign, CRM_UTM_Source, code, end_date, start_date, status
 - Responses: 201: CRM_UTM_Campaign, CRM_UTM_Source, Excel_Fields, code, created_at, end_date, id, start_date, ... | 422: detail
 
 ### GET /api/campaigns/{campaign_id}
@@ -464,7 +464,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/customers
 - Summary: Create Customer
 - Tags: customers
-- Request: body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, external_customer_id
+- Request: body=CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, Customer_ID
 - Responses: 201: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### GET /api/customers/{customer_id}
@@ -476,7 +476,7 @@ Total API paths in OpenAPI: 62
 ### PATCH /api/customers/{customer_id}
 - Summary: Update Customer
 - Tags: customers
-- Request: params=customer_id(path) ; body=crm_age_band, crm_education, crm_existing_plan_flag, crm_gender, crm_income_band, crm_nonresident_flag, crm_occupation, crm_tobacco_user, external_customer_id
+- Request: params=customer_id(path) ; body=CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, Customer_ID
 - Responses: 200: CRM_Age_Band, CRM_Education, CRM_Existing_Plan_Flag, CRM_Gender, CRM_Income_Band, CRM_NonResident_Flag, CRM_Occupation, CRM_Tobacco_User, ... | 422: detail
 
 ### DELETE /api/customers/{customer_id}
@@ -578,7 +578,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/followups
 - Summary: Create Followup
 - Tags: followups
-- Request: body=channel, customer_id, lead_id, notes, scheduled_at, status, task_id
+- Request: body=Label_Basis, channel, customer_id, lead_id, scheduled_at, status, task_id
 - Responses: 201: Excel_Fields, Label_Basis, channel, completed_at, created_at, customer_id, id, lead_id, ... | 422: detail
 
 ### PATCH /api/followups/{followup_id}
@@ -614,7 +614,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/leads
 - Summary: Create Lead
 - Tags: leads
-- Request: body=campaign_id, current_handler, current_section, current_stage, customer_id, excel_fields, lead_score, priority, recommended_action, source_channel, ...
+- Request: body=CRM_Channel, CRM_Data_Medium, Label_Source_Lead_Status, campaign_id, current_handler, current_section, current_stage, customer_id, excel_fields, lead_score, ...
 - Responses: 201: CRM_Channel, CRM_Data_Medium, Excel_Fields, Label_Source_Lead_Status, campaign_id, created_at, current_handler, current_section, ... | 422: detail
 
 ### GET /api/leads/{lead_id}
@@ -710,7 +710,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/products
 - Summary: Create Product
 - Tags: products
-- Request: body=code, name
+- Request: body=CRM_Product_Code, CRM_Product_Name
 - Responses: 201: CRM_Product_Code, CRM_Product_Name, Excel_Fields, created_at, id, updated_at | 422: detail
 
 ### GET /api/products/{product_id}
@@ -758,7 +758,7 @@ Total API paths in OpenAPI: 62
 ### POST /api/tasks
 - Summary: Create Task
 - Tags: tasks
-- Request: body=customer_id, description, due_at, lead_id, priority, status, title
+- Request: body=Label_Source_Disposition, customer_id, description, due_at, lead_id, priority, status
 - Responses: 201: Excel_Fields, Label_Source_Disposition, created_at, customer_id, description, due_at, id, lead_id, ... | 422: detail
 
 ### GET /api/tasks/{task_id}

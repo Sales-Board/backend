@@ -9,9 +9,9 @@ class EngagementEventRead(BaseModel):
     lead_id: int | None
     customer_id: int | None
     campaign_id: int | None
-    channel: str = Field(validation_alias=AliasChoices("channel", "CRM_Channel"), serialization_alias="CRM_Channel")
+    channel: str = Field(alias="CRM_Channel", validation_alias=AliasChoices("CRM_Channel", "channel"))
     metric_type: str
-    metric_value: int = Field(serialization_alias="MSG_Engaged")
+    metric_value: int = Field(alias="MSG_Engaged")
     event_payload: dict | None
     event_time: datetime
     excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")

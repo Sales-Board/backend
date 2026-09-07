@@ -10,8 +10,8 @@ class TaskBase(BaseModel):
     title: str = Field(
         min_length=1,
         max_length=160,
-        validation_alias=AliasChoices("title", "Label_Source_Disposition"),
-        serialization_alias="Label_Source_Disposition",
+        alias="Label_Source_Disposition",
+        validation_alias=AliasChoices("Label_Source_Disposition", "title"),
     )
     description: str | None = None
     status: str = Field(default="open", min_length=1, max_length=32)
@@ -47,7 +47,7 @@ class FollowupBase(BaseModel):
     lead_id: int | None = Field(default=None, ge=1)
     customer_id: int | None = Field(default=None, ge=1)
     channel: str = Field(default="call", min_length=1, max_length=32)
-    notes: str | None = Field(default=None, serialization_alias="Label_Basis")
+    notes: str | None = Field(default=None, alias="Label_Basis")
     status: str = Field(default="pending", min_length=1, max_length=32)
     scheduled_at: datetime | None = None
 

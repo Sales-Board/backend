@@ -8,14 +8,14 @@ class CampaignBase(BaseModel):
     name: str = Field(
         min_length=1,
         max_length=150,
-        validation_alias=AliasChoices("name", "CRM_UTM_Campaign"),
-        serialization_alias="CRM_UTM_Campaign",
+        alias="CRM_UTM_Campaign",
+        validation_alias=AliasChoices("CRM_UTM_Campaign", "name"),
     )
     channel: str | None = Field(
         default=None,
         max_length=64,
-        validation_alias=AliasChoices("channel", "CRM_UTM_Source"),
-        serialization_alias="CRM_UTM_Source",
+        alias="CRM_UTM_Source",
+        validation_alias=AliasChoices("CRM_UTM_Source", "channel"),
     )
     status: str = Field(default="active", min_length=1, max_length=32)
     start_date: date | None = None

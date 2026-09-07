@@ -9,50 +9,50 @@ class CustomerBase(BaseModel):
     crm_gender: str | None = Field(
         default=None,
         max_length=32,
-        validation_alias=AliasChoices("crm_gender", "CRM_Gender"),
-        serialization_alias="CRM_Gender",
+        alias="CRM_Gender",
+        validation_alias=AliasChoices("CRM_Gender", "crm_gender"),
     )
     crm_age_band: str | None = Field(
         default=None,
         max_length=32,
-        validation_alias=AliasChoices("crm_age_band", "CRM_Age_Band"),
-        serialization_alias="CRM_Age_Band",
+        alias="CRM_Age_Band",
+        validation_alias=AliasChoices("CRM_Age_Band", "crm_age_band"),
     )
     crm_income_band: str | None = Field(
         default=None,
         max_length=32,
-        validation_alias=AliasChoices("crm_income_band", "CRM_Income_Band"),
-        serialization_alias="CRM_Income_Band",
+        alias="CRM_Income_Band",
+        validation_alias=AliasChoices("CRM_Income_Band", "crm_income_band"),
     )
     crm_occupation: str | None = Field(
         default=None,
         max_length=100,
-        validation_alias=AliasChoices("crm_occupation", "CRM_Occupation"),
-        serialization_alias="CRM_Occupation",
+        alias="CRM_Occupation",
+        validation_alias=AliasChoices("CRM_Occupation", "crm_occupation"),
     )
     crm_education: str | None = Field(
         default=None,
         max_length=100,
-        validation_alias=AliasChoices("crm_education", "CRM_Education"),
-        serialization_alias="CRM_Education",
+        alias="CRM_Education",
+        validation_alias=AliasChoices("CRM_Education", "crm_education"),
     )
     crm_tobacco_user: str | None = Field(
         default=None,
         max_length=16,
-        validation_alias=AliasChoices("crm_tobacco_user", "CRM_Tobacco_User"),
-        serialization_alias="CRM_Tobacco_User",
+        alias="CRM_Tobacco_User",
+        validation_alias=AliasChoices("CRM_Tobacco_User", "crm_tobacco_user"),
     )
     crm_nonresident_flag: str | None = Field(
         default=None,
         max_length=16,
-        validation_alias=AliasChoices("crm_nonresident_flag", "CRM_NonResident_Flag"),
-        serialization_alias="CRM_NonResident_Flag",
+        alias="CRM_NonResident_Flag",
+        validation_alias=AliasChoices("CRM_NonResident_Flag", "crm_nonresident_flag"),
     )
     crm_existing_plan_flag: str | None = Field(
         default=None,
         max_length=64,
-        validation_alias=AliasChoices("crm_existing_plan_flag", "CRM_Existing_Plan_Flag"),
-        serialization_alias="CRM_Existing_Plan_Flag",
+        alias="CRM_Existing_Plan_Flag",
+        validation_alias=AliasChoices("CRM_Existing_Plan_Flag", "crm_existing_plan_flag"),
     )
 
 
@@ -60,8 +60,8 @@ class CustomerCreate(CustomerBase):
     external_customer_id: str = Field(
         min_length=1,
         max_length=64,
-        validation_alias=AliasChoices("external_customer_id", "Customer_ID"),
-        serialization_alias="Customer_ID",
+        alias="Customer_ID",
+        validation_alias=AliasChoices("Customer_ID", "external_customer_id"),
     )
 
 
@@ -70,14 +70,14 @@ class CustomerUpdate(CustomerBase):
         default=None,
         min_length=1,
         max_length=64,
-        validation_alias=AliasChoices("external_customer_id", "Customer_ID"),
-        serialization_alias="Customer_ID",
+        alias="Customer_ID",
+        validation_alias=AliasChoices("Customer_ID", "external_customer_id"),
     )
 
 
 class CustomerRead(CustomerBase):
     id: int
-    external_customer_id: str = Field(serialization_alias="Customer_ID")
+    external_customer_id: str = Field(alias="Customer_ID", validation_alias=AliasChoices("Customer_ID", "external_customer_id"))
     created_at: datetime
     updated_at: datetime
     excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")

@@ -8,8 +8,8 @@ class ProductBase(BaseModel):
     name: str = Field(
         min_length=1,
         max_length=150,
-        validation_alias=AliasChoices("name", "CRM_Product_Name"),
-        serialization_alias="CRM_Product_Name",
+        alias="CRM_Product_Name",
+        validation_alias=AliasChoices("CRM_Product_Name", "name"),
     )
 
 
@@ -17,8 +17,8 @@ class ProductCreate(ProductBase):
     code: str = Field(
         min_length=1,
         max_length=64,
-        validation_alias=AliasChoices("code", "CRM_Product_Code"),
-        serialization_alias="CRM_Product_Code",
+        alias="CRM_Product_Code",
+        validation_alias=AliasChoices("CRM_Product_Code", "code"),
     )
 
 
@@ -29,7 +29,7 @@ class ProductUpdate(BaseModel):
 
 class ProductRead(ProductBase):
     id: int
-    code: str = Field(serialization_alias="CRM_Product_Code")
+    code: str = Field(alias="CRM_Product_Code", validation_alias=AliasChoices("CRM_Product_Code", "code"))
     created_at: datetime
     updated_at: datetime
     excel_fields: dict[str, Any] | None = Field(default=None, serialization_alias="Excel_Fields")
