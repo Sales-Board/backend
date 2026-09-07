@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.campaign import Campaign
 from app.models.customer import Customer
 from app.models.lead import Lead
+from app.models.lead_timeline_event import LeadTimelineEvent
 from app.repositories.lead_repository import LeadRepository
 from app.schemas.lead import LeadCreate, LeadUpdate
 
@@ -38,7 +39,23 @@ class LeadService:
         self._assert_customer_exists(db, payload.customer_id)
         if payload.campaign_id is not None:
             self._assert_campaign_exists(db, payload.campaign_id)
-        return self.repository.create(db, payload)
+        lead = self.repository.create(db, payload)
+        db.add(
+            LeadTimelineEvent(
+                lead_id=lead.id,
+                customer_id=lead.customer_id,
+                event_type="lead_created",
+                event_source="lead_service",
+                details={
+                    "status": lead.status,
+                    "current_stage": lead.current_stage,
+                    "campaign_id": lead.campaign_id,
+                    "source_channel": lead.source_channel,
+                },
+            )
+        )
+        db.commit()
+        return lead
 
     def update_lead(self, db: Session, lead_id: int, payload: LeadUpdate) -> Lead:
         lead = self.get_lead(db, lead_id)
@@ -46,7 +63,18 @@ class LeadService:
             self._assert_customer_exists(db, payload.customer_id)
         if payload.campaign_id is not None:
             self._assert_campaign_exists(db, payload.campaign_id)
-        return self.repository.update(db, lead, payload)
+        updated = self.repository.update(db, lead, payload)
+        db.add(
+            LeadTimelineEvent(
+                lead_id=updated.id,
+                customer_id=updated.customer_id,
+                event_type="lead_updated",
+                event_source="lead_service",
+                details=payload.model_dump(exclude_unset=True),
+            )
+        )
+        db.commit()
+        return updated
 
     def delete_lead(self, db: Session, lead_id: int) -> None:
         lead = self.get_lead(db, lead_id)

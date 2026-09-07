@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -23,7 +23,12 @@ class Lead(Base):
     source_channel: Mapped[str | None] = mapped_column(String(64), nullable=True)
     source_medium: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, server_default="new")
+    current_stage: Mapped[str] = mapped_column(String(32), nullable=False, server_default="generated")
+    current_section: Mapped[str | None] = mapped_column(String(64), nullable=True, server_default="intake")
+    current_handler: Mapped[str | None] = mapped_column(String(100), nullable=True)
     priority: Mapped[str] = mapped_column(String(16), nullable=False, server_default="medium")
+    lead_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    recommended_action: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
