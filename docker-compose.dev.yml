@@ -1,18 +1,18 @@
 services:
-  # api:
-  #   build: .
-  #   container_name: lead-intel-api
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/lead_intelligence
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - ./:/app
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
+  api:
+    build: .
+    container_name: lead-intel-api
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/lead_intelligence
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16
