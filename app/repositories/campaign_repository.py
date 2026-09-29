@@ -1,3 +1,6 @@
+# Deferred annotations: `list[...]` below would otherwise resolve to the `list` method, not the builtin.
+from __future__ import annotations
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 

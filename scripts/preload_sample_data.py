@@ -241,6 +241,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Load real sample_data.xlsx records into PostgreSQL")
     parser.add_argument("--reset", action="store_true", help="Delete existing domain rows before load")
     parser.add_argument("--keep-smoke", action="store_true", help="Do not remove existing SMOKE/SAMPLE rows")
+    parser.add_argument("--if-empty", action="store_true", help="Skip the load when leads already exist")
     parser.add_argument(
         "--dataset-path",
         default=str(DATASET_PATH),
@@ -251,6 +252,13 @@ def main() -> None:
     session_factory = get_session_factory()
     if session_factory is None:
         raise RuntimeError("Database is not configured")
+
+    if args.if_empty:
+        with session_factory() as db:
+            existing_leads = _count(db, Lead)
+        if existing_leads:
+            print(f"sample-data-skipped: {existing_leads} leads already loaded")
+            return
 
     dataset_path = Path(args.dataset_path)
     missing_columns = validate_contract(dataset_path)
