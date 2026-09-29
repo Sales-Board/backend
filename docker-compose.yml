@@ -6,6 +6,11 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/lead_intelligence
+    # Migrate, load sample_data.xlsx on first boot only, then serve.
+    command: >
+      sh -c "alembic upgrade head &&
+             python scripts/preload_sample_data.py --if-empty &&
+             exec uvicorn app.main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     volumes:
