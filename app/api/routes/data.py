@@ -4,6 +4,11 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.data_management import (
     DataQualityResponse,
+    DataLoadApplyRequest,
+    DataLoadApplyResponse,
+    DataLoadDatasetInfo,
+    DataLoadPreviewResponse,
+    DataLoadRequest,
     ExportRequest,
     ExportResponse,
     ImportJobRead,
@@ -11,9 +16,26 @@ from app.schemas.data_management import (
     ValidationResponse,
 )
 from app.services.data_service import DataService
+from app.services.data_load_service import DataLoadService
 
 router = APIRouter(prefix="/data", tags=["data"])
 data_service = DataService()
+data_load_service = DataLoadService()
+
+
+@router.get("/load/datasets", response_model=list[DataLoadDatasetInfo])
+def list_load_datasets() -> list[DataLoadDatasetInfo]:
+    return data_load_service.list_datasets()
+
+
+@router.post("/load/preview", response_model=DataLoadPreviewResponse)
+def preview_data_load(payload: DataLoadRequest, db: Session = Depends(get_db)) -> DataLoadPreviewResponse:
+    return data_load_service.preview(db, payload)
+
+
+@router.post("/load/apply", response_model=DataLoadApplyResponse, status_code=status.HTTP_201_CREATED)
+def apply_data_load(payload: DataLoadApplyRequest, db: Session = Depends(get_db)) -> DataLoadApplyResponse:
+    return data_load_service.apply(db, payload)
 
 
 @router.post("/import", response_model=ImportJobRead, status_code=status.HTTP_201_CREATED)
