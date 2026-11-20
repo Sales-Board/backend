@@ -153,7 +153,7 @@ Status: Implemented analytics overview/funnel/channel endpoints and reporting en
 
 ## Data Management
 
-Status: Implemented import profiling jobs, job lookup, quality report, validation report, history, and export endpoints.
+Status: Implemented import profiling jobs, job lookup, quality report, validation report, history, and export endpoints. The quality report includes counts for pipeline-generated tasks, follow-ups, assignments, outcomes, and timeline events, plus customer ID completeness.
 
 1. `POST /api/data/import`
 2. `GET /api/data/import/{job_id}`

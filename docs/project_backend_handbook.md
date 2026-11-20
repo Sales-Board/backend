@@ -640,6 +640,7 @@ Total API paths in OpenAPI: 62
 - Tags: data
 - Request: none
 - Responses: 200: completeness, generated_at, table_counts
+- The report includes linked pipeline tables (tasks, follow-ups, assignments, outcomes, and timeline events) and customer external-ID completeness.
 
 ### GET /api/data/validation
 - Summary: Get Data Validation

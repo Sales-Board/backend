@@ -24,6 +24,39 @@ class DataLoadDatasetInfo(BaseModel):
     match_field: str
 
 
+class PipelineWorkbookRequest(BaseModel):
+    file_name: str = Field(min_length=1, max_length=255)
+    content_base64: str = Field(min_length=1, max_length=14_000_000)
+    mode: Literal["merge", "append"] = "merge"
+
+
+class PipelineWorkbookApplyRequest(PipelineWorkbookRequest):
+    mode: Literal["merge", "append"]
+
+
+class PipelineWorkbookEffect(BaseModel):
+    dataset_name: str
+    current_count: int
+    insert_count: int
+    update_count: int
+    skip_count: int
+
+
+class PipelineWorkbookFieldQuality(BaseModel):
+    field: str
+    populated_count: int
+    missing_count: int
+    completeness: float
+
+
+class PipelineWorkbookQuality(BaseModel):
+    inspected_rows: int
+    valid_rows: int
+    invalid_rows: int
+    fields_with_missing_values: int
+    field_completeness: list[PipelineWorkbookFieldQuality]
+
+
 class DataLoadApplyRequest(DataLoadRequest):
     mode: Literal["merge", "append", "replace"]
 
@@ -33,6 +66,16 @@ class DataLoadRowPreview(BaseModel):
     action: Literal["insert", "update", "skip", "invalid"]
     key: str | None = None
     issues: list[str] = Field(default_factory=list)
+    details: dict[str, str | int | float | None] = Field(default_factory=dict)
+
+
+class PipelineWorkbookPreviewResponse(BaseModel):
+    file_name: str
+    row_count: int
+    invalid_count: int
+    quality: PipelineWorkbookQuality
+    effects: list[PipelineWorkbookEffect]
+    preview_rows: list[DataLoadRowPreview]
 
 
 class DataLoadPreviewResponse(BaseModel):
@@ -64,6 +107,13 @@ class ImportJobRead(BaseModel):
     completed_at: datetime | None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PipelineWorkbookApplyResponse(BaseModel):
+    job: ImportJobRead
+    mode: Literal["merge", "append"]
+    row_count: int
+    effects: list[PipelineWorkbookEffect]
 
 
 class DataLoadApplyResponse(BaseModel):

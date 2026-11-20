@@ -1,5 +1,21 @@
+import base64
 from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
+
+from openpyxl import Workbook
+
+from app.core.excel_contract import (
+    CALL_COLUMNS,
+    CAMPAIGN_COLUMNS,
+    CUSTOMER_COLUMNS,
+    EVENT_COLUMNS,
+    LEAD_COLUMNS,
+    MESSAGE_COLUMNS,
+    PRODUCT_COLUMNS,
+    TARGET_COLUMNS,
+    WEB_COLUMNS,
+)
 
 
 def _create_customer(client, external_id: str = "CUST-DATA-001") -> int:
@@ -209,3 +225,126 @@ def test_data_load_preview_reports_invalid_relationships(client) -> None:
 
     applied = client.post("/api/data/load/apply", json={**payload, "mode": "merge"})
     assert applied.status_code == 400
+
+
+def _pipeline_workbook_payload(rows: list[dict[str, object]]) -> dict[str, str]:
+    headers = list(dict.fromkeys(
+        (
+            *LEAD_COLUMNS,
+            *CUSTOMER_COLUMNS,
+            *PRODUCT_COLUMNS,
+            *CAMPAIGN_COLUMNS,
+            *MESSAGE_COLUMNS,
+            *CALL_COLUMNS,
+            *WEB_COLUMNS,
+            *EVENT_COLUMNS,
+            *TARGET_COLUMNS,
+        )
+    ))
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "dataset"
+    sheet.append(headers)
+    for row in rows:
+        sheet.append([row.get(header) for header in headers])
+    contents = BytesIO()
+    workbook.save(contents)
+    return {
+        "file_name": "pipeline-test.xlsx",
+        "content_base64": base64.b64encode(contents.getvalue()).decode("ascii"),
+    }
+
+
+def _pipeline_row(customer_id: str, suffix: str) -> dict[str, object]:
+    return {
+        "Customer_ID": customer_id,
+        "CRM_Channel": "INHOUSE_ONLINE",
+        "CRM_Product_Code": f"XLSX-PRODUCT-{suffix}",
+        "CRM_Product_Name": f"Workbook Product {suffix}",
+        "CRM_UTM_Campaign": f"XLSX-CAMPAIGN-{suffix}",
+        "CRM_Gender": "female",
+        "CRM_Age_Band": "26-35",
+        "Label_Source_Disposition": "Just Browsing",
+        "Label_Source_Lead_Status": "Contactable",
+        "CDR_Total_Calls": 1,
+        "CDR_Connected_Calls": 1,
+        "CDR_Avg_Talk_Sec": 60,
+    }
+
+
+def test_pipeline_workbook_preview_and_merge_create_linked_records(client) -> None:
+    payload = _pipeline_workbook_payload(
+        [_pipeline_row("XLSX-CUSTOMER-001", "001"), _pipeline_row("XLSX-CUSTOMER-002", "002")]
+    )
+    preview = client.post("/api/data/load/pipeline/preview", json=payload)
+    assert preview.status_code == 200, preview.text
+    result = preview.json()
+    assert result["row_count"] == 2
+    assert result["invalid_count"] == 0
+    assert result["quality"]["inspected_rows"] == 2
+    assert result["quality"]["valid_rows"] == 2
+    quality_fields = {field["field"]: field for field in result["quality"]["field_completeness"]}
+    assert quality_fields["Customer_ID"] == {
+        "field": "Customer_ID",
+        "populated_count": 2,
+        "missing_count": 0,
+        "completeness": 1.0,
+    }
+    assert quality_fields["CRM_Tobacco_User"]["missing_count"] == 2
+    assert len(result["preview_rows"]) == 2
+    assert result["preview_rows"][0]["details"]["product"] == "Workbook Product 001"
+    effects = {effect["dataset_name"]: effect for effect in result["effects"]}
+    assert effects["customers"]["insert_count"] == 2
+    assert effects["leads"]["insert_count"] == 2
+    assert effects["tasks"]["insert_count"] == 2
+    assert effects["calls"]["insert_count"] == 2
+
+    applied = client.post(
+        "/api/data/load/pipeline/apply",
+        json={**payload, "mode": "merge"},
+    )
+    assert applied.status_code == 201, applied.text
+    applied_effects = {effect["dataset_name"]: effect for effect in applied.json()["effects"]}
+    assert applied_effects["customers"]["insert_count"] == 2
+    assert applied_effects["leads"]["insert_count"] == 2
+    assert applied_effects["lead_assignments"]["insert_count"] == 2
+    assert applied_effects["lead_timeline_events"]["insert_count"] == 2
+    assert applied_effects["engagement_events"]["insert_count"] == 2
+    assert applied_effects["website_events"]["insert_count"] == 2
+    assert applied_effects["tasks"]["insert_count"] == 2
+    assert applied_effects["followups"]["insert_count"] == 2
+    assert applied_effects["calls"]["insert_count"] == 2
+    assert applied.json()["job"]["details"]["file_format"] == "xlsx"
+
+    quality = client.get("/api/data/quality").json()
+    for table in ("tasks", "followups", "lead_assignments", "lead_timeline_events"):
+        assert quality["table_counts"][table] == 2
+    assert quality["completeness"]["customers_with_external_id_ratio"] == 1.0
+
+
+def test_pipeline_workbook_append_is_idempotent_and_invalid_rows_do_not_apply(client) -> None:
+    payload = _pipeline_workbook_payload([_pipeline_row("XLSX-CUSTOMER-APPEND", "APPEND")])
+    first = client.post("/api/data/load/pipeline/apply", json={**payload, "mode": "merge"})
+    assert first.status_code == 201, first.text
+
+    preview = client.post("/api/data/load/pipeline/preview", json=payload)
+    assert preview.status_code == 200, preview.text
+    assert preview.json()["preview_rows"][0]["action"] == "update", preview.json()
+    assert {effect["dataset_name"]: effect for effect in preview.json()["effects"]}["leads"]["insert_count"] == 0
+
+    appended = client.post("/api/data/load/pipeline/apply", json={**payload, "mode": "append"})
+    assert appended.status_code == 201, appended.text
+    append_effects = {effect["dataset_name"]: effect for effect in appended.json()["effects"]}
+    assert append_effects["leads"]["skip_count"] == 1
+    assert append_effects["leads"]["insert_count"] == 0
+
+    invalid_payload = _pipeline_workbook_payload([_pipeline_row("", "INVALID")])
+    invalid_preview = client.post("/api/data/load/pipeline/preview", json=invalid_payload)
+    assert invalid_preview.status_code == 200
+    assert invalid_preview.json()["invalid_count"] == 1
+    assert invalid_preview.json()["quality"]["invalid_rows"] == 1
+    invalid_apply = client.post(
+        "/api/data/load/pipeline/apply",
+        json={**invalid_payload, "mode": "merge"},
+    )
+    assert invalid_apply.status_code == 400

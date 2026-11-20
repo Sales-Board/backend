@@ -99,8 +99,11 @@ Important dataset metadata:
 
 ## Run API Server
 
+For local development, enable reload so route and service changes are picked
+up without manually restarting the API:
+
 ```bash
-./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Docs URLs
@@ -151,10 +154,16 @@ All endpoints are under `/api` prefix.
 The Operations → Load screen supports CSV and JSON files for customers,
 leads, products, campaigns, calls, tasks, follow-ups, engagement events,
 website events, lead assignments, lead outcomes, and lead timeline events.
+It also accepts an `.xlsx` workbook using the canonical `dataset` sheet and
+Excel CRM column contract to preview and load the linked records created by
+the sample-data preload pipeline.
 
 - `GET /data/load/datasets` lists dataset fields, required fields, and matching keys.
 - `POST /data/load/preview` validates an uploaded file and compares its rows with the live dataset without writing data.
 - `POST /data/load/apply` applies a previewed file using `merge`, `append`, or `replace`; changes and the chosen mode are recorded in `/data/history`.
+- `POST /data/load/pipeline/preview` validates a base64-encoded `.xlsx` workbook and previews changes across related pipeline tables.
+- The workbook preview includes file-specific data quality: valid/invalid row totals and populated/missing counts with completeness for each source column.
+- `POST /data/load/pipeline/apply` applies the workbook with `merge` or `append`; whole-database replace is intentionally unavailable for pipeline workbooks.
 
 Merge adds new rows and updates matching rows. Blank optional values become
 null on new rows and preserve existing values when updating. Append skips matching

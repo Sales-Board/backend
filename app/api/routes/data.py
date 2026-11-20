@@ -13,14 +13,20 @@ from app.schemas.data_management import (
     ExportResponse,
     ImportJobRead,
     ImportJobRequest,
+    PipelineWorkbookApplyRequest,
+    PipelineWorkbookApplyResponse,
+    PipelineWorkbookPreviewResponse,
+    PipelineWorkbookRequest,
     ValidationResponse,
 )
 from app.services.data_service import DataService
 from app.services.data_load_service import DataLoadService
+from app.services.pipeline_workbook_service import PipelineWorkbookService
 
 router = APIRouter(prefix="/data", tags=["data"])
 data_service = DataService()
 data_load_service = DataLoadService()
+pipeline_workbook_service = PipelineWorkbookService()
 
 
 @router.get("/load/datasets", response_model=list[DataLoadDatasetInfo])
@@ -36,6 +42,26 @@ def preview_data_load(payload: DataLoadRequest, db: Session = Depends(get_db)) -
 @router.post("/load/apply", response_model=DataLoadApplyResponse, status_code=status.HTTP_201_CREATED)
 def apply_data_load(payload: DataLoadApplyRequest, db: Session = Depends(get_db)) -> DataLoadApplyResponse:
     return data_load_service.apply(db, payload)
+
+
+@router.post("/load/pipeline/preview", response_model=PipelineWorkbookPreviewResponse)
+def preview_pipeline_workbook(
+    payload: PipelineWorkbookRequest,
+    db: Session = Depends(get_db),
+) -> PipelineWorkbookPreviewResponse:
+    return pipeline_workbook_service.preview(db, payload)
+
+
+@router.post(
+    "/load/pipeline/apply",
+    response_model=PipelineWorkbookApplyResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def apply_pipeline_workbook(
+    payload: PipelineWorkbookApplyRequest,
+    db: Session = Depends(get_db),
+) -> PipelineWorkbookApplyResponse:
+    return pipeline_workbook_service.apply(db, payload)
 
 
 @router.post("/import", response_model=ImportJobRead, status_code=status.HTTP_201_CREATED)

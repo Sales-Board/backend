@@ -83,10 +83,19 @@ class DataService:
 
         leads = counts["leads"]
         calls = counts["calls"]
+        customers = counts["customers"]
+        missing_external_ids = self.repository.customers_missing_external_id(db)
         completeness = {
+            "customers_with_external_id_ratio": 0.0,
             "leads_with_customer_ratio": 0.0,
             "calls_completed_with_duration_ratio": 0.0,
         }
+
+        if customers > 0:
+            completeness["customers_with_external_id_ratio"] = max(
+                0.0,
+                float(customers - missing_external_ids) / float(customers),
+            )
 
         if leads > 0:
             # customer_id is non-null in schema, so this ratio is 1.0 when leads exist.

@@ -8,8 +8,13 @@ from app.models.campaign import Campaign
 from app.models.customer import Customer
 from app.models.data_import_job import DataImportJob
 from app.models.engagement_event import EngagementEvent
+from app.models.followup import Followup
 from app.models.lead import Lead
+from app.models.lead_assignment import LeadAssignment
+from app.models.lead_outcome import LeadOutcome
+from app.models.lead_timeline_event import LeadTimelineEvent
 from app.models.product import Product
+from app.models.task import Task
 from app.models.website_event import WebsiteEvent
 
 
@@ -64,8 +69,13 @@ class DataRepository:
             "products": int(db.scalar(select(func.count(Product.id))) or 0),
             "campaigns": int(db.scalar(select(func.count(Campaign.id))) or 0),
             "calls": int(db.scalar(select(func.count(Call.id))) or 0),
+            "tasks": int(db.scalar(select(func.count(Task.id))) or 0),
+            "followups": int(db.scalar(select(func.count(Followup.id))) or 0),
             "engagement_events": int(db.scalar(select(func.count(EngagementEvent.id))) or 0),
             "website_events": int(db.scalar(select(func.count(WebsiteEvent.id))) or 0),
+            "lead_assignments": int(db.scalar(select(func.count(LeadAssignment.id))) or 0),
+            "lead_outcomes": int(db.scalar(select(func.count(LeadOutcome.id))) or 0),
+            "lead_timeline_events": int(db.scalar(select(func.count(LeadTimelineEvent.id))) or 0),
             "import_jobs": int(db.scalar(select(func.count(DataImportJob.id))) or 0),
         }
 
