@@ -146,6 +146,23 @@ All endpoints are under `/api` prefix.
 - `GET /leads/{lead_id}/outcomes`
 	- Lists outcome history.
 
+## Interactive Data Loading
+
+The Operations → Load screen supports CSV and JSON files for customers,
+leads, products, campaigns, calls, tasks, follow-ups, engagement events,
+website events, lead assignments, lead outcomes, and lead timeline events.
+
+- `GET /data/load/datasets` lists dataset fields, required fields, and matching keys.
+- `POST /data/load/preview` validates an uploaded file and compares its rows with the live dataset without writing data.
+- `POST /data/load/apply` applies a previewed file using `merge`, `append`, or `replace`; changes and the chosen mode are recorded in `/data/history`.
+
+Merge adds new rows and updates matching rows. Blank optional values become
+null on new rows and preserve existing values when updating. Append skips matching
+rows. Replace removes records absent from the file, but is blocked when that
+would affect linked records; datasets matched by database ID require an `id`
+column for replacement. Unknown columns are preserved in `excel_fields`.
+Uploads are limited to 10 MB and 10,000 rows.
+
 ## Excel-Aligned API Fields
 
 Customer APIs now return CRM-style fields aligned with `sample_data.xlsx`:
@@ -174,7 +191,7 @@ AI responses mark calculated values with `derived_output: true`, record the exac
 
 ## Data Processing Flow
 
-1. Data import API records import jobs and metadata.
+1. Interactive data loading previews, validates, and applies selected datasets; the legacy `/data/import` endpoint records validation-only jobs from server-local paths.
 2. Preload script maps real sample dataset into core entities (products, campaigns, customers, leads).
 3. Service layer creates linked operational records (tasks, followups, calls, engagement, journey events).
 4. AI endpoints generate prediction logs per lead.
