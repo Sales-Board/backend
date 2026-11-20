@@ -108,3 +108,104 @@ def test_data_quality_validation_and_export(client) -> None:
     assert export_payload["status"] == "completed"
     assert export_payload["resource"] == "leads"
     assert Path(export_payload["file_path"]).exists()
+
+
+def test_data_load_previews_merges_and_skips_append_duplicates(client) -> None:
+    created = client.post(
+        "/api/customers",
+        json={"external_customer_id": "CUST-LOAD-001", "crm_gender": "Female"},
+    )
+    assert created.status_code == 201
+    customer_id = created.json()["id"]
+    payload = {
+        "dataset_name": "customers",
+        "file_name": "customers.csv",
+        "file_format": "csv",
+        "content": (
+            "external_customer_id,crm_gender,custom_source\n"
+            "CUST-LOAD-001,,web\n"
+            "CUST-LOAD-002,Male,upload\n"
+        ),
+    }
+
+    preview = client.post("/api/data/load/preview", json=payload)
+    assert preview.status_code == 200
+    assert preview.json()["insert_count"] == 1
+    assert preview.json()["update_count"] == 1
+    assert preview.json()["invalid_count"] == 0
+
+    applied = client.post("/api/data/load/apply", json={**payload, "mode": "merge"})
+    assert applied.status_code == 201
+    assert applied.json()["inserted_count"] == 1
+    assert applied.json()["updated_count"] == 1
+
+    existing = client.get(f"/api/customers/{customer_id}").json()
+    assert existing["CRM_Gender"] == "Female"
+    assert existing["Excel_Fields"]["custom_source"] == "web"
+
+    appended = client.post("/api/data/load/apply", json={**payload, "mode": "append"})
+    assert appended.status_code == 201
+    assert appended.json()["inserted_count"] == 0
+    assert appended.json()["skipped_count"] == 2
+
+
+def test_data_load_replace_reports_and_removes_unlisted_records(client) -> None:
+    for code, name in (("LOAD-P1", "Old one"), ("LOAD-P2", "Old two")):
+        response = client.post("/api/products", json={"code": code, "name": name})
+        assert response.status_code == 201
+
+    payload = {
+        "dataset_name": "products",
+        "file_name": "products.json",
+        "file_format": "json",
+        "content": '[{"code":"LOAD-P1","name":"Updated one"},{"code":"LOAD-P3","name":"New three"}]',
+    }
+    preview = client.post("/api/data/load/preview", json=payload)
+    assert preview.status_code == 200
+    assert preview.json()["replace_delete_count"] == 1
+    assert preview.json()["replace_blocked_count"] == 0
+
+    applied = client.post("/api/data/load/apply", json={**payload, "mode": "replace"})
+    assert applied.status_code == 201
+    assert applied.json()["updated_count"] == 1
+    assert applied.json()["inserted_count"] == 1
+    assert applied.json()["deleted_count"] == 1
+    products = client.get("/api/products").json()
+    assert {product["CRM_Product_Code"] for product in products} == {"LOAD-P1", "LOAD-P3"}
+
+
+def test_data_load_replace_blocks_removing_referenced_records(client) -> None:
+    customer_id = _create_customer(client, "CUST-LOAD-LINKED")
+    campaign_id = _create_campaign(client, "CMP-LOAD-LINKED")
+    _create_lead(client, customer_id, campaign_id)
+    payload = {
+        "dataset_name": "customers",
+        "file_name": "customers.json",
+        "file_format": "json",
+        "content": '[{"external_customer_id":"CUST-LOAD-OTHER","first_name":"Other"}]',
+    }
+    preview = client.post("/api/data/load/preview", json=payload)
+    assert preview.status_code == 200
+    assert preview.json()["replace_blocked_count"] > 0
+
+    response = client.post("/api/data/load/apply", json={**payload, "mode": "replace"})
+    assert response.status_code == 409
+
+
+def test_data_load_preview_reports_invalid_relationships(client) -> None:
+    payload = {
+        "dataset_name": "leads",
+        "file_name": "leads.csv",
+        "file_format": "csv",
+        "content": "customer_id\n999999\n",
+    }
+    preview = client.post("/api/data/load/preview", json=payload)
+    assert preview.status_code == 200
+    assert preview.json()["invalid_count"] == 1
+    assert any(
+        "referenced customers record not found" in issue
+        for issue in preview.json()["preview_rows"][0]["issues"]
+    )
+
+    applied = client.post("/api/data/load/apply", json={**payload, "mode": "merge"})
+    assert applied.status_code == 400
