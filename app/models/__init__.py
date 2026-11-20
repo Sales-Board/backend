@@ -1,6 +1,7 @@
 """ORM models package."""
 
 from app.models.ai_prediction import AIPrediction
+from app.models.ai_chat import AIChatConversation, AIChatMessage
 from app.models.campaign import Campaign
 from app.models.call import Call
 from app.models.customer import Customer
@@ -19,6 +20,8 @@ from app.models.website_event import WebsiteEvent
 
 __all__ = [
 	"AIPrediction",
+	"AIChatConversation",
+	"AIChatMessage",
 	"Call",
 	"Campaign",
 	"Customer",
