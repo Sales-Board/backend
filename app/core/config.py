@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     database_url: str = Field(default="", alias="DATABASE_URL")
+    groq_api_key: str = Field(default="", alias="GROQ_API_KEY")
+    google_api_key: str = Field(default="", alias="GOOGLE_API_KEY")
     allowed_origins: list[str] = Field(default_factory=lambda: ["*"])
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
