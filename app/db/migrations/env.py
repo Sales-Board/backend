@@ -5,6 +5,8 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
+from app.models import AIChatConversation  # noqa: F401
+from app.models import AIChatMessage  # noqa: F401
 from app.models import AIPrediction  # noqa: F401
 from app.models import Call  # noqa: F401
 from app.models import Campaign  # noqa: F401
