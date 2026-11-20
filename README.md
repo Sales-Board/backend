@@ -10,8 +10,9 @@ FastAPI backend for lead-centric workflow automation, analytics, AI scoring, and
 4. Data import/export and quality validation APIs.
 5. ML training and model catalog APIs.
 6. AI prediction and decision recommendation APIs.
-7. Analytics and reporting APIs.
-8. Lead lifecycle operations:
+7. Persistent AI Agent conversations, database-grounded answers, and Groq/Gemini model selection.
+8. Analytics and reporting APIs.
+9. Lead lifecycle operations:
 	 - Assignment and transfer.
 	 - Timeline event tracking.
 	 - Outcome capture and follow-up generation.
@@ -55,6 +56,11 @@ Create env file:
 ```bash
 cp .env.example .env
 ```
+
+Set `GROQ_API_KEY` and/or `GOOGLE_API_KEY` in `backend/.env` to enable the AI
+Agent's six Groq and Gemini model choices. The keys remain on the backend. Free
+tiers are subject to each provider's model availability, rate limits, and terms.
+Apply the database migration from the PostgreSQL setup section below.
 
 ## PostgreSQL Setup
 
@@ -213,4 +219,3 @@ The handbook includes:
 - `404 /openapi.json`: use `/api/openapi.json`.
 - DB connection errors: verify `DATABASE_URL` in `.env` and PostgreSQL service status.
 - Empty API lists: run preload command with `--reset`.
-
