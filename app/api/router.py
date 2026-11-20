@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes.ai import router as ai_router
+from app.api.routes.ai_chat import router as ai_chat_router
 from app.api.routes.analytics import router as analytics_router
 from app.api.routes.campaigns import router as campaigns_router
 from app.api.routes.calls import router as calls_router
@@ -29,6 +30,7 @@ api_router.include_router(dashboard_router)
 api_router.include_router(leads_router)
 api_router.include_router(products_router)
 api_router.include_router(ai_router)
+api_router.include_router(ai_chat_router)
 api_router.include_router(analytics_router)
 api_router.include_router(campaigns_router)
 api_router.include_router(calls_router)
